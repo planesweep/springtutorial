@@ -15,5 +15,8 @@ public class MyEventApp {
         System.out.println(b);
 
         ctx.stop();
+
+        CustomEventPublisher publisher = ctx.getBean("customEventPublisher", CustomEventPublisher.class);
+        publisher.publish();
     }
 }
