@@ -14,7 +14,10 @@
     <bean id="ctxStopEvent" class="net.gregorkofler.spring.tutorial.third.CtxStopEvent"/>
 
     <bean id="customEventHandler" class="net.gregorkofler.spring.tutorial.third.CustomEventHandler" />
-    <bean id="customEventPublisher" class="net.gregorkofler.spring.tutorial.third.CustomEventPublisher" />
+    <bean id="customEventPublisher" class="net.gregorkofler.spring.tutorial.third.CustomEventPublisher" >
+        <property name="applicationEventPublisher" ref="customEventPublisher"/>
+
+    </bean>
 
 
 </beans>
