@@ -1,7 +1,6 @@
 package net.gregorkofler.spring.tutorial.third;
 
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 
 public class CustomEvent extends ApplicationEvent {
 
@@ -10,7 +9,7 @@ public class CustomEvent extends ApplicationEvent {
         super(source);
     }
 
-    public String toString(){
+    public String toString() {
         return "CustomEvent";
     }
 }

@@ -10,7 +10,7 @@ public class MyEventApp {
 
         ctx.start();
 
-        B b = ctx.getBean("b",B.class);
+        B b = ctx.getBean("b", B.class);
 
         System.out.println(b);
 

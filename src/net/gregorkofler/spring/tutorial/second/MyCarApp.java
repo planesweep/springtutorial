@@ -11,7 +11,7 @@ public class MyCarApp {
 
         ApplicationContext context = new AnnotationConfigApplicationContext(MyCarAppConfig.class);
 
-        ICar car = context.getBean("createGolf",ICar.class);
+        ICar car = context.getBean("createGolf", ICar.class);
 
         System.out.println(car);
 

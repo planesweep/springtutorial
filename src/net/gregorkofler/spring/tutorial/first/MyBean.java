@@ -22,7 +22,7 @@ public class MyBean {
         this.toilette = toilette;
     }
 
-    public String toString(){
-        return getTurd() +" " +getToilette();
+    public String toString() {
+        return getTurd() + " " + getToilette();
     }
 }

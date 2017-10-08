@@ -7,7 +7,7 @@ public class Golf implements ICar {
     private String id;
     private IDriver driver;
 
-    public Golf(){
+    public Golf() {
     }
 
     public Golf(String id, IDriver driver) {
@@ -33,10 +33,10 @@ public class Golf implements ICar {
     @Required
     @Override
     public void setDriver(IDriver driver) {
-        this.driver=driver;
+        this.driver = driver;
     }
 
-    public String toString(){
+    public String toString() {
         return new StringBuffer().append("ID:").append(getId()).append(" Driver:").append(getDriver().getName()).toString();
     }
 }

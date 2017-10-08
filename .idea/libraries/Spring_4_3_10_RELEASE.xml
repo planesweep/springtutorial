@@ -20,6 +20,10 @@
       <root url="jar://$PROJECT_DIR$/lib/spring-orm-4.3.10.RELEASE.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/spring-jdbc-4.3.10.RELEASE.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/spring-test-4.3.10.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/aspectjrt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/aspectjtools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/aspectjweaver.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.aspectj.matcher.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

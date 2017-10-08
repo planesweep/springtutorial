@@ -5,9 +5,10 @@ public class IDriver implements Person {
     private String name;
     private String id;
 
-    public IDriver(){}
+    public IDriver() {
+    }
 
-    public IDriver(String name, String id){
+    public IDriver(String name, String id) {
         setName(name);
         setId(id);
     }
@@ -22,13 +23,12 @@ public class IDriver implements Person {
         this.name = name;
     }
 
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @Override
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

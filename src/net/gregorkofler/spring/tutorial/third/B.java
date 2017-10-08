@@ -7,11 +7,11 @@ public class B {
     private A a;
 
     @Required
-    public void setA(A a){
-        this.a=a;
+    public void setA(A a) {
+        this.a = a;
     }
 
-    public String toString(){
-        return "This is B." +a;
+    public String toString() {
+        return "This is B." + a;
     }
 }

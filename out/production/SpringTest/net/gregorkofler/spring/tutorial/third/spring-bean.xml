@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="a" class="net.gregorkofler.spring.tutorial.third.A">
@@ -13,8 +13,8 @@
     <bean id="ctxStartEvent" class="net.gregorkofler.spring.tutorial.third.CtxStartEvent"/>
     <bean id="ctxStopEvent" class="net.gregorkofler.spring.tutorial.third.CtxStopEvent"/>
 
-    <bean id="customEventHandler" class="net.gregorkofler.spring.tutorial.third.CustomEventHandler" />
-    <bean id="customEventPublisher" class="net.gregorkofler.spring.tutorial.third.CustomEventPublisher" >
+    <bean id="customEventHandler" class="net.gregorkofler.spring.tutorial.third.CustomEventHandler"/>
+    <bean id="customEventPublisher" class="net.gregorkofler.spring.tutorial.third.CustomEventPublisher">
         <property name="applicationEventPublisher" ref="customEventPublisher"/>
 
     </bean>
