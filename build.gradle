@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.7.RELEASE")
+    }
+}
+
+
+
+jar {
+    baseName = 'net.gregorkofler'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+bootRepackage.enabled = false
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile 'org.springframework:spring-context:4.+'
+    compile 'org.springframework:spring-core:4.+'
+    compile("org.springframework.boot:spring-boot-starter:1.5.7.RELEASE")
+    compile 'org.springframework.integration:spring-integration-core:4.+'
+    compile("org.springframework.boot:spring-boot-starter-integration")
+    compile("org.springframework.integration:spring-integration-java-dsl")
+    compile("org.springframework.integration:spring-integration-feed")
+    compile("org.springframework.integration:spring-integration-file")
+
+    testCompile 'org.testng:testng:6.8.7'
+    testCompile 'org.mockito:mockito-all:1.9.5'
+    testCompile 'org.easytesting:fest-assert-core:2.0M10'
+    testCompile 'org.springframework:spring-test:4.0.3.RELEASE'
+}
+
+tasks.withType(JavaExec) {
+    standardInput = System.in
+}
+
+
+eclipse {
+    project {
+        natures += 'org.springframework.ide.eclipse.core.springnature'
+    }
+}

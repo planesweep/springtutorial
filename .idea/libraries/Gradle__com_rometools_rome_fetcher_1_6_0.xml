@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.rometools:rome-fetcher:1.6.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.rometools/rome-fetcher/1.6.0/82dfa336ce477539e7c81214a184f5710794a9e8/rome-fetcher-1.6.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.rometools/rome-fetcher/1.6.0/775447503146de42bd5e3a4dd56ba05d70cd7da0/rome-fetcher-1.6.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
