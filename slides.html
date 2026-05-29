@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Framework &amp; AWS — Developer Training</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+  <style>
+    :root {
+      --accent: #6db33f;
+      --accent2: #ff9900;
+      --dark: #1a1a2e;
+      --card: rgba(255,255,255,0.05);
+    }
+
+    .reveal { font-family: 'Segoe UI', Arial, sans-serif; }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      color: var(--accent);
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+
+    .reveal h1 { font-size: 2.2em; }
+    .reveal h2 { font-size: 1.6em; }
+    .reveal h3 { font-size: 1.2em; color: #ccc; }
+
+    .reveal .slides section { text-align: left; }
+    .reveal .slides section.center-slide { text-align: center; }
+
+    /* Code blocks */
+    .reveal pre {
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border-radius: 6px;
+      font-size: 0.68em;
+      margin: 0.5em 0;
+    }
+    .reveal code { border-radius: 4px; }
+
+    /* Tag/Badge */
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.55em;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 20px;
+      vertical-align: middle;
+      margin-left: 6px;
+      letter-spacing: 0.05em;
+    }
+    .badge.aws { background: var(--accent2); }
+    .badge.warn { background: #e74c3c; color: #fff; }
+    .badge.info { background: #3498db; color: #fff; }
+
+    /* Grid layout */
+    .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; }
+    .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(109,179,63,0.3);
+      border-radius: 8px;
+      padding: 0.8em 1em;
+    }
+    .card h4 { color: var(--accent); margin: 0 0 0.4em; font-size: 0.9em; }
+    .card p, .card li { font-size: 0.72em; margin: 0.2em 0; color: #ccc; }
+
+    /* Arrow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      font-size: 0.75em;
+      margin: 0.4em 0;
+      flex-wrap: wrap;
+    }
+    .flow .box {
+      background: rgba(109,179,63,0.15);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 4px 10px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .flow .box.aws { border-color: var(--accent2); background: rgba(255,153,0,0.15); }
+    .flow .arrow { color: #888; font-size: 1.2em; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 0.25em 0; font-size: 0.78em; color: #ddd; }
+    .checklist li::before { content: "✓ "; color: var(--accent); font-weight: bold; }
+    .checklist li.warn::before { content: "⚠ "; color: #e74c3c; }
+
+    /* Section divider */
+    .section-title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: rgba(109,179,63,0.12);
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.78em;
+      color: #ddd;
+      margin: 0.5em 0;
+    }
+    .highlight-box.aws {
+      border-left-color: var(--accent2);
+      background: rgba(255,153,0,0.08);
+    }
+    .highlight-box.danger {
+      border-left-color: #e74c3c;
+      background: rgba(231,76,60,0.08);
+    }
+
+    /* Number circle */
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      font-size: 0.75em;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      margin: 0.35em 0;
+      font-size: 0.78em;
+      color: #ddd;
+    }
+
+    /* Progress bar override */
+    .reveal .progress { color: var(--accent); }
+
+    /* Title slide */
+    .title-slide h1 { font-size: 2.5em; line-height: 1.1; }
+    .title-slide .subtitle {
+      color: #aaa;
+      font-size: 0.9em;
+      margin-top: 0.5em;
+    }
+    .title-slide .meta {
+      margin-top: 2em;
+      font-size: 0.65em;
+      color: #666;
+    }
+
+    table { font-size: 0.7em; width: 100%; }
+    th { color: var(--accent); border-bottom: 1px solid rgba(109,179,63,0.4); }
+    td { color: #ccc; padding: 0.3em 0.5em; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════ TITLE ═══ -->
+<section class="center-slide">
+  <div class="title-slide">
+    <h1>Spring Framework<br>&amp; AWS</h1>
+    <p class="subtitle">Developer Training — Junior / Mid-Level</p>
+    <div class="flow" style="justify-content:center; margin-top:1.5em;">
+      <div class="box">IoC &amp; DI</div>
+      <span class="arrow">→</span>
+      <div class="box">AOP</div>
+      <span class="arrow">→</span>
+      <div class="box">Spring Boot</div>
+      <span class="arrow">→</span>
+      <div class="box aws">AWS Deployment</div>
+    </div>
+    <p class="meta">Dieses Training begleitet das TUTORIAL.md im Repository</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ AGENDA ═══ -->
+<section>
+  <h2>Agenda</h2>
+  <div class="cols2">
+    <div>
+      <div class="card">
+        <h4>🍃 Spring Framework</h4>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">1. Anforderungen &amp; Setup</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">2. IoC &amp; Dependency Injection</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">3. XML vs. Annotation-Config</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">4. Spring Events</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">5. Spring AOP</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">6. Spring Integration</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">7. Spring Boot REST API</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h4>☁️ AWS Deployment</h4>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">8. Docker &amp; Containerisierung</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">9. ECR — Container Registry</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">10. ECS Fargate</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">11. RDS &amp; Secrets Manager</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">12. Load Balancer &amp; Auto Scaling</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">13. CloudWatch &amp; Logging</li>
+          <li style="font-size:0.75em;color:#ccc;padding:0.2em 0;">14. CI/CD Pipeline</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:1em;">
+    Jedes Kapitel folgt dem Muster: <strong>Konzept verstehen → Code sehen → selbst nachbauen</strong>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: ANFORDERUNGEN ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🛠</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Anforderungen</h2>
+    <p style="color:#aaa; font-size:0.8em;">Was brauchst du, bevor du anfängst?</p>
+  </div>
+</section>
+
+<section>
+  <h2>Technische Anforderungen</h2>
+  <table>
+    <tr>
+      <th>Tool</th><th>Version</th><th>Wozu?</th>
+    </tr>
+    <tr><td>Java JDK</td><td>8 (Projekt) / 17+ (neu)</td><td>Laufzeitumgebung</td></tr>
+    <tr><td>Gradle</td><td>6.x (im Repo)</td><td>Build &amp; Abhängigkeiten</td></tr>
+    <tr><td>IntelliJ IDEA</td><td>Community</td><td>IDE</td></tr>
+    <tr><td>Git</td><td>2.x</td><td>Versionskontrolle</td></tr>
+    <tr><td>Docker</td><td>20+</td><td>Container (ab Teil 6)</td></tr>
+    <tr><td>AWS CLI</td><td>v2</td><td>AWS-Steuerung via Terminal</td></tr>
+    <tr><td>AWS-Konto</td><td>Free Tier</td><td>Deployment</td></tr>
+  </table>
+  <div class="highlight-box" style="margin-top:0.8em;">
+    <strong>Schnell-Check:</strong>
+    <code style="font-size:0.9em;"> java -version | gradle -v | docker --version | aws --version</code>
+  </div>
+</section>
+
+<section>
+  <h2>Wissensvoraussetzungen</h2>
+  <div class="cols2">
+    <div>
+      <p style="color:var(--accent);font-size:0.8em;font-weight:bold;">✅ Vorhanden sein sollte:</p>
+      <ul class="checklist">
+        <li>Java-Grundlagen (Klassen, Interfaces)</li>
+        <li>OOP-Konzepte (Vererbung, Polymorphismus)</li>
+        <li>Java Annotations (<code>@Override</code> etc.)</li>
+        <li>Grundlegendes XML-Verständnis</li>
+        <li>Terminal-Grundbefehle (cd, ls)</li>
+      </ul>
+    </div>
+    <div>
+      <p style="color:#888;font-size:0.8em;font-weight:bold;">🔄 Wird im Training erklärt:</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:0.75em;color:#aaa;padding:0.2em 0;">→ IoC &amp; Dependency Injection</li>
+        <li style="font-size:0.75em;color:#aaa;padding:0.2em 0;">→ Spring Bean-Lifecycle</li>
+        <li style="font-size:0.75em;color:#aaa;padding:0.2em 0;">→ AOP-Konzepte</li>
+        <li style="font-size:0.75em;color:#aaa;padding:0.2em 0;">→ Docker &amp; Container</li>
+        <li style="font-size:0.75em;color:#aaa;padding:0.2em 0;">→ AWS-Services (ECS, RDS, ...)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: IoC & DI ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🔄</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">IoC &amp; Dependency Injection</h2>
+    <p style="color:#aaa; font-size:0.8em;">Das Herzstück von Spring</p>
+  </div>
+</section>
+
+<section>
+  <h2>Das Problem ohne Spring</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:#e74c3c;font-weight:bold;">❌ Harte Kopplung</p>
+      <pre><code class="java">public class OrderService {
+  // Direkte Instanziierung!
+  private PaymentService pay
+    = new PaymentService();
+
+  public void placeOrder() {
+    pay.charge(100);
+  }
+}</code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);font-weight:bold;">✅ Mit DI (lose Kopplung)</p>
+      <pre><code class="java">public class OrderService {
+  // Abhängigkeit von außen!
+  private final PaymentService pay;
+
+  public OrderService(PaymentService p){
+    this.pay = p;
+  }
+
+  public void placeOrder() {
+    pay.charge(100);
+  }
+}</code></pre>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.6em;">
+    Harte Kopplung = schwer zu testen, schwer auszutauschen, schwer zu warten
+  </div>
+</section>
+
+<section>
+  <h2>Inversion of Control (IoC)</h2>
+  <p style="font-size:0.78em;color:#aaa;">Wer erstellt die Objekte?</p>
+  <div class="cols2">
+    <div class="card">
+      <h4>Ohne Spring</h4>
+      <p>Dein Code entscheidet, wann und wie Objekte erstellt werden</p>
+      <code style="font-size:0.85em;color:var(--accent2);">new OrderService(new PaymentService())</code>
+    </div>
+    <div class="card">
+      <h4>Mit Spring (IoC)</h4>
+      <p>Spring übernimmt die Kontrolle — du sagst nur <em>was</em> du brauchst</p>
+      <code style="font-size:0.85em;color:var(--accent);">@Autowired OrderService service</code>
+    </div>
+  </div>
+  <div style="margin-top:1em;">
+    <div class="flow">
+      <div class="box">Deine Klasse<br><small>braucht etwas</small></div>
+      <span class="arrow">→</span>
+      <div class="box">Spring Container<br><small>erstellt &amp; verwaltet</small></div>
+      <span class="arrow">→</span>
+      <div class="box">Bean<br><small>wird injiziert</small></div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.8em;">
+    <strong>IoC = "Don't call us, we'll call you"</strong> — der Container steuert den Fluss
+  </div>
+</section>
+
+<section>
+  <h2>Drei Arten von Dependency Injection</h2>
+  <pre><code class="java">// 1️⃣ Konstruktor-Injection (EMPFOHLEN)
+@Service
+public class OrderService {
+    private final PaymentService paymentService;
+
+    @Autowired  // ab Spring 4.3 bei einem Konstruktor optional
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+
+// 2️⃣ Setter-Injection
+@Service
+public class OrderService {
+    private PaymentService paymentService;
+
+    @Autowired
+    public void setPaymentService(PaymentService svc) {
+        this.paymentService = svc;
+    }
+}
+
+// 3️⃣ Field-Injection (NICHT empfohlen in Produktion)
+@Service
+public class OrderService {
+    @Autowired
+    private PaymentService paymentService;  // schwer zu testen!
+}</code></pre>
+  <div class="highlight-box" style="margin-top:0.4em;">
+    Konstruktor-Injection macht Abhängigkeiten explizit und ermöglicht <code>final</code>-Felder
+  </div>
+</section>
+
+<section>
+  <h2>Spring Bean-Lifecycle</h2>
+  <div style="font-size:0.75em;">
+    <div class="step-row"><span class="num">1</span> Spring liest Konfiguration (XML / Annotation / Java-Config)</div>
+    <div class="step-row"><span class="num">2</span> Bean-Definitionen werden im <strong>BeanFactory</strong>-Register gespeichert</div>
+    <div class="step-row"><span class="num">3</span> <code>new BeanClass()</code> wird aufgerufen (Instanziierung)</div>
+    <div class="step-row"><span class="num">4</span> Properties werden gesetzt (Setter-Injection)</div>
+    <div class="step-row"><span class="num">5</span> Awareness-Interfaces werden aufgerufen (<code>setBeanName()</code> etc.)</div>
+    <div class="step-row"><span class="num">6</span> <code>@PostConstruct</code> / <code>afterPropertiesSet()</code> wird ausgeführt</div>
+    <div class="step-row"><span class="num">7</span> ✅ Bean ist bereit — liegt im Container</div>
+    <div class="step-row"><span class="num">8</span> Bei Shutdown: <code>@PreDestroy</code> / <code>destroy()</code></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: XML vs. ANNOTATIONS ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">⚙️</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">XML vs. Java-Konfiguration</h2>
+    <p style="color:#aaa; font-size:0.8em;">Zwei Wege — ein Ziel</p>
+  </div>
+</section>
+
+<section>
+  <h2>XML-Konfiguration <span class="badge">Klassisch</span></h2>
+  <pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="..."&gt;
+
+    &lt;!-- Bean definieren --&gt;
+    &lt;bean id="myBean" class="com.example.MyBean"&gt;
+        &lt;property name="name" value="Mein erster Bean"/&gt;
+    &lt;/bean&gt;
+
+    &lt;!-- Referenz auf andere Bean --&gt;
+    &lt;bean id="orderService" class="com.example.OrderService"&gt;
+        &lt;constructor-arg ref="paymentService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="paymentService" class="com.example.PaymentService"/&gt;
+
+&lt;/beans&gt;</code></pre>
+  <div class="cols2" style="margin-top:0.5em;">
+    <div class="card"><h4>Vorteile</h4><p>Konfiguration von Code getrennt<br>Kein Rebuild bei Änderungen</p></div>
+    <div class="card"><h4>Nachteile</h4><p>Verbose, fehleranfällig<br>Kein Compile-Zeit-Check</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Java-Konfiguration <span class="badge">Modern</span></h2>
+  <pre><code class="java">@Configuration          // Diese Klasse liefert Bean-Definitionen
+public class AppConfig {
+
+    @Bean               // Methode erstellt eine Bean
+    public OrderService orderService() {
+        return new OrderService(paymentService());
+    }
+
+    @Bean
+    public PaymentService paymentService() {
+        return new PaymentService();
+    }
+}
+
+// Starten:
+ApplicationContext ctx =
+    new AnnotationConfigApplicationContext(AppConfig.class);
+
+OrderService svc = ctx.getBean(OrderService.class);</code></pre>
+  <div class="highlight-box" style="margin-top:0.4em;">
+    Java-Config ist <strong>typsicher</strong> — Fehler fallen beim Kompilieren auf, nicht erst zur Laufzeit
+  </div>
+</section>
+
+<section>
+  <h2>Bean Scopes</h2>
+  <table>
+    <tr><th>Scope</th><th>Beschreibung</th><th>Wann nutzen?</th></tr>
+    <tr><td><code>singleton</code></td><td>Eine Instanz pro Container</td><td>Standard — Services, Repositories</td></tr>
+    <tr><td><code>prototype</code></td><td>Neue Instanz bei jedem <code>getBean()</code></td><td>Stateful Objekte</td></tr>
+    <tr><td><code>request</code></td><td>Pro HTTP-Request</td><td>Web-Apps</td></tr>
+    <tr><td><code>session</code></td><td>Pro HTTP-Session</td><td>Web-Apps (User-Daten)</td></tr>
+  </table>
+  <pre style="margin-top:0.6em;"><code class="java">@Bean
+@Scope("prototype")      // Neue Instanz bei jedem Aufruf
+public ShoppingCart shoppingCart() {
+    return new ShoppingCart();
+}</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: EVENTS ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">📡</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Spring Events</h2>
+    <p style="color:#aaa; font-size:0.8em;">Observer-Pattern mit dem Spring Event-Bus</p>
+  </div>
+</section>
+
+<section>
+  <h2>Warum Events?</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:#e74c3c;font-weight:bold;">❌ Enge Kopplung</p>
+      <pre><code class="java">// OrderService muss alle
+// anderen Services kennen!
+orderService.placeOrder(order);
+emailService.sendConfirmation();
+inventoryService.reduceStock();
+analyticsService.trackOrder();</code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);font-weight:bold;">✅ Über Events entkoppelt</p>
+      <pre><code class="java">// OrderService kennt niemanden!
+publisher.publishEvent(
+    new OrderPlacedEvent(order)
+);
+// Alle anderen reagieren selbst</code></pre>
+    </div>
+  </div>
+  <div style="margin-top:0.8em;">
+    <div class="flow">
+      <div class="box">Publisher<br><small>kennt niemanden</small></div>
+      <span class="arrow">→</span>
+      <div class="box">Event Bus<br><small>ApplicationContext</small></div>
+      <span class="arrow">→</span>
+      <div class="box">Handler A</div>
+    </div>
+    <div class="flow" style="padding-left:18.5em;">
+      <span class="arrow">→</span>
+      <div class="box">Handler B</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Events implementieren</h2>
+  <pre><code class="java">// 1. Event-Klasse
+public class OrderPlacedEvent extends ApplicationEvent {
+    private final Order order;
+    public OrderPlacedEvent(Object source, Order order) {
+        super(source);
+        this.order = order;
+    }
+    public Order getOrder() { return order; }
+}
+
+// 2. Publisher
+@Service
+public class OrderService {
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
+    public void placeOrder(Order order) {
+        // Business-Logik...
+        publisher.publishEvent(new OrderPlacedEvent(this, order));
+    }
+}
+
+// 3. Handler
+@Component
+public class EmailHandler implements ApplicationListener&lt;OrderPlacedEvent&gt; {
+    @Override
+    public void onApplicationEvent(OrderPlacedEvent event) {
+        System.out.println("E-Mail senden für: " + event.getOrder().getId());
+    }
+}</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: AOP ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🔍</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Spring AOP</h2>
+    <p style="color:#aaa; font-size:0.8em;">Querschnittsbelange sauber trennen</p>
+  </div>
+</section>
+
+<section>
+  <h2>Was sind Querschnittsbelange?</h2>
+  <div class="cols3">
+    <div class="card">
+      <h4>📝 Logging</h4>
+      <p>Methoden-Aufrufe loggen, ohne Logging-Code im Business-Code</p>
+    </div>
+    <div class="card">
+      <h4>🔒 Security</h4>
+      <p>Berechtigungen prüfen, bevor Methoden ausgeführt werden</p>
+    </div>
+    <div class="card">
+      <h4>💾 Transaktionen</h4>
+      <p>DB-Transaktionen automatisch starten &amp; abschließen</p>
+    </div>
+  </div>
+  <div class="cols2" style="margin-top:0.6em;">
+    <div class="card">
+      <h4>⏱ Performance</h4>
+      <p>Ausführungszeit messen ohne den Service-Code zu verändern</p>
+    </div>
+    <div class="card">
+      <h4>🔄 Caching</h4>
+      <p>Ergebnisse zwischenspeichern, transparent für den Aufrufer</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>AOP-Terminologie</h2>
+  <table>
+    <tr><th>Begriff</th><th>Bedeutung</th><th>Beispiel</th></tr>
+    <tr><td><strong>Aspect</strong></td><td>Klasse mit Querschnittscode</td><td><code>LoggingAspect</code></td></tr>
+    <tr><td><strong>Advice</strong></td><td>Wann ausführen?</td><td><code>@Before</code>, <code>@After</code>, <code>@Around</code></td></tr>
+    <tr><td><strong>Pointcut</strong></td><td>Welche Methoden?</td><td><code>execution(* get*())</code></td></tr>
+    <tr><td><strong>Join Point</strong></td><td>Konkreter Aufruf</td><td>Aufruf von <code>getEmployee()</code></td></tr>
+    <tr><td><strong>Weaving</strong></td><td>Einfügen des Codes</td><td>Spring Proxy-Mechanismus</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Wie Spring AOP funktioniert</h2>
+  <div style="text-align:center;margin:0.5em 0;">
+    <div class="flow" style="justify-content:center;">
+      <div class="box">Aufrufer</div>
+      <span class="arrow">→</span>
+      <div class="box" style="border-color:var(--accent2);background:rgba(255,153,0,0.15);">
+        Spring Proxy<br><small>(AOP-Wrapper)</small>
+      </div>
+      <span class="arrow">→</span>
+      <div class="box">Original-Methode</div>
+    </div>
+  </div>
+  <pre><code class="java">// Ohne @Around: Spring injiziert Code um die Methode herum
+// Dein Code sieht das NICHT — Spring generiert einen Proxy
+
+@Aspect
+@Component
+public class TimingAspect {
+
+    @Around("execution(* com.example.service.*.*(..))")
+    public Object measure(ProceedingJoinPoint pjp) throws Throwable {
+        long start = System.currentTimeMillis();
+
+        Object result = pjp.proceed();   // ← Original-Methode ausführen
+
+        long time = System.currentTimeMillis() - start;
+        System.out.printf("[%s] %dms%n",
+            pjp.getSignature().getName(), time);
+        return result;
+    }
+}</code></pre>
+  <div class="highlight-box" style="margin-top:0.4em;">
+    Spring erstellt einen <strong>Proxy</strong> um deine Bean — du rufst immer den Proxy auf
+  </div>
+</section>
+
+<section>
+  <h2>Advice-Typen im Überblick</h2>
+  <pre><code class="java">@Aspect
+@Component
+public class ExampleAspect {
+
+    // VOR der Methode
+    @Before("execution(* com.example.*.*(..))")
+    public void before(JoinPoint jp) {
+        System.out.println("BEFORE: " + jp.getSignature());
+    }
+
+    // NACH der Methode (immer, auch bei Fehler)
+    @After("execution(* com.example.*.*(..))")
+    public void after(JoinPoint jp) { ... }
+
+    // NUR wenn kein Fehler
+    @AfterReturning(pointcut = "...", returning = "result")
+    public void afterReturning(Object result) { ... }
+
+    // NUR bei Fehler
+    @AfterThrowing(pointcut = "...", throwing = "ex")
+    public void afterThrowing(Exception ex) { ... }
+
+    // RUND UM die Methode (mächtigster Typ)
+    @Around("execution(* com.example.*.*(..))")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        // vor der Methode
+        Object result = pjp.proceed();  // Methode ausführen!
+        // nach der Methode
+        return result;
+    }
+}</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: SPRING BOOT ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🚀</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Spring Boot</h2>
+    <p style="color:#aaa; font-size:0.8em;">Von Konfiguration zu Convention</p>
+  </div>
+</section>
+
+<section>
+  <h2>Spring Boot: Was ist anders?</h2>
+  <div class="cols2">
+    <div class="card">
+      <h4>Spring Core (klassisch)</h4>
+      <ul>
+        <li>Explizite Konfiguration für alles</li>
+        <li>Web-Server separat konfigurieren</li>
+        <li>Dependency-Konflikte selbst lösen</li>
+        <li>Viele XML-Dateien</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Spring Boot <span class="badge">Convention over Config</span></h4>
+      <ul>
+        <li>Auto-Konfiguration basierend auf Classpath</li>
+        <li>Eingebetteter Tomcat/Jetty</li>
+        <li>Starter-POMs lösen Kompatibilität</li>
+        <li>Ein JAR, alles drin</li>
+      </ul>
+    </div>
+  </div>
+  <pre style="margin-top:0.8em;"><code class="java">// Das ist eine vollständige Spring Boot App:
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}</code></pre>
+  <div class="highlight-box" style="margin-top:0.4em;">
+    <code>@SpringBootApplication</code> = <code>@Configuration</code> + <code>@EnableAutoConfiguration</code> + <code>@ComponentScan</code>
+  </div>
+</section>
+
+<section>
+  <h2>REST-Controller Pattern</h2>
+  <pre><code class="java">@RestController
+@RequestMapping("/api/v1/orders")
+public class OrderController {
+
+    private final OrderService orderService;
+
+    // Konstruktor-Injection (kein @Autowired nötig bei einem Konstruktor)
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping                              // GET /api/v1/orders
+    public List&lt;Order&gt; getAll() {
+        return orderService.findAll();
+    }
+
+    @GetMapping("/{id}")                     // GET /api/v1/orders/42
+    public ResponseEntity&lt;Order&gt; getById(@PathVariable Long id) {
+        return orderService.findById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping                             // POST /api/v1/orders
+    @ResponseStatus(HttpStatus.CREATED)
+    public Order create(@RequestBody @Valid OrderRequest req) {
+        return orderService.create(req);
+    }
+
+    @DeleteMapping("/{id}")                  // DELETE /api/v1/orders/42
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        orderService.delete(id);
+    }
+}</code></pre>
+</section>
+
+<section>
+  <h2>Spring Actuator — Health-Checks <span class="badge aws">AWS-Kritisch</span></h2>
+  <pre><code class="properties"># application.properties
+management.endpoints.web.exposure.include=health,info,metrics
+management.endpoint.health.show-details=always</code></pre>
+  <pre><code class="json">// GET /actuator/health
+{
+  "status": "UP",
+  "components": {
+    "db": {
+      "status": "UP",
+      "details": { "database": "PostgreSQL", "result": 1 }
+    },
+    "diskSpace": { "status": "UP" }
+  }
+}</code></pre>
+  <div class="highlight-box aws" style="margin-top:0.5em;">
+    <strong>AWS ALB und ECS nutzen <code>/actuator/health</code></strong> um zu prüfen, ob Container erreichbar ist.
+    Fällt der Health-Check aus → Container wird ersetzt!
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: DOCKER ═══ -->
+<section class="center-slide" data-background="rgba(255,153,0,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🐳</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Docker &amp; Container</h2>
+    <p style="color:#aaa; font-size:0.8em;">Grundlage für jedes Cloud-Deployment</p>
+  </div>
+</section>
+
+<section>
+  <h2>Warum Container?</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:#e74c3c;font-weight:bold;">❌ Ohne Container</p>
+      <ul style="font-size:0.72em;color:#ccc;">
+        <li>"Bei mir läuft es!" — auf dem Server nicht</li>
+        <li>Java-Version auf Server falsch</li>
+        <li>OS-Unterschiede machen Probleme</li>
+        <li>Skalierung erfordert VM-Setup</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);font-weight:bold;">✅ Mit Container</p>
+      <ul style="font-size:0.72em;color:#ccc;">
+        <li>App + Laufzeitumgebung verpackt</li>
+        <li>Überall gleich: lokal = Produktion</li>
+        <li>Schnell skalierbar</li>
+        <li>Isolation zwischen Services</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:0.8em;background:rgba(255,255,255,0.04);border-radius:8px;padding:0.8em;">
+    <p style="font-size:0.7em;color:#888;margin:0 0 0.4em;">Container-Schichten:</p>
+    <div class="flow" style="flex-direction:column;gap:0.2em;align-items:flex-start;">
+      <div class="box" style="width:80%;border-color:var(--accent);">Deine Spring Boot App (JAR)</div>
+      <div class="box" style="width:80%;">Java 17 JRE</div>
+      <div class="box" style="width:80%;">Alpine Linux (5MB)</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Dockerfile — Best Practices</h2>
+  <pre><code class="dockerfile"># Multi-Stage Build: Build-Stage hat JDK, Run-Stage nur JRE
+FROM eclipse-temurin:17-jdk-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew bootJar --no-daemon
+
+# ─── Production Stage ───────────────────────────────────
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Security: Non-Root-User anlegen
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+# Health-Check im Container (ECS nutzt dies!)
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+
+EXPOSE 8080
+ENTRYPOINT ["java", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]</code></pre>
+  <div class="cols2" style="margin-top:0.4em;font-size:0.7em;">
+    <div class="highlight-box">Multi-Stage: Final-Image hat kein JDK — kleiner &amp; sicherer</div>
+    <div class="highlight-box aws">Non-Root-User: Sicherheitspflicht in produktiven AWS-Deployments</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: AWS ARCHITEKTUR ═══ -->
+<section class="center-slide" data-background="rgba(255,153,0,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">☁️</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">AWS-Architektur</h2>
+    <p style="color:#aaa; font-size:0.8em;">Produktiver Einsatz von Spring auf AWS</p>
+  </div>
+</section>
+
+<section>
+  <h2>Ziel-Architektur</h2>
+  <div style="font-size:0.72em;font-family:monospace;background:rgba(0,0,0,0.3);padding:1em;border-radius:8px;line-height:1.8;">
+    <span style="color:#888;">Internet</span>
+    <span style="color:var(--accent);">  →  Route 53 (DNS)</span>
+    <span style="color:var(--accent);">  →  ALB (Load Balancer, HTTPS)</span><br>
+    <span style="color:#888;">                         ↓</span><br>
+    <span style="color:var(--accent2);">                   VPC (privates Netz)</span><br>
+    <span style="color:#888;">                    ┌───────────────────────────┐</span><br>
+    <span style="color:#888;">                    │  </span><span style="color:var(--accent2);">ECS Fargate (Cluster)</span><br>
+    <span style="color:#888;">                    │  ├── </span><span style="color:var(--accent);">Task 1: Spring App</span><br>
+    <span style="color:#888;">                    │  ├── </span><span style="color:var(--accent);">Task 2: Spring App</span><br>
+    <span style="color:#888;">                    │  └── </span><span style="color:var(--accent);">Task 3: Spring App</span><br>
+    <span style="color:#888;">                    │           ↓</span><br>
+    <span style="color:#888;">                    │     </span><span style="color:var(--accent2);">RDS PostgreSQL</span><br>
+    <span style="color:#888;">                    └───────────────────────────┘</span><br>
+    <span style="color:#888;">                         ↓ Logs</span><br>
+    <span style="color:var(--accent2);">                    CloudWatch</span>
+    <span style="color:#888;">  |  </span><span style="color:var(--accent2);">Secrets Manager</span>
+  </div>
+</section>
+
+<section>
+  <h2>AWS-Services im Überblick</h2>
+  <div class="cols2">
+    <div class="card">
+      <h4>🗂 ECR — Elastic Container Registry</h4>
+      <p>Privates Docker-Registry in AWS. Deine Images werden hier gespeichert und von ECS gepullt.</p>
+    </div>
+    <div class="card">
+      <h4>🚢 ECS Fargate</h4>
+      <p>Serverloser Container-Service. Du definierst den Container — AWS kümmert sich um die Server.</p>
+    </div>
+    <div class="card">
+      <h4>🗄 RDS</h4>
+      <p>Verwaltete relationale Datenbank (PostgreSQL/MySQL). Automatische Backups, Patches, Multi-AZ.</p>
+    </div>
+    <div class="card">
+      <h4>🔐 Secrets Manager</h4>
+      <p>DB-Passwörter, API-Keys sicher speichern. Automatische Rotation möglich.</p>
+    </div>
+    <div class="card">
+      <h4>⚖️ ALB</h4>
+      <p>Application Load Balancer verteilt Traffic auf Container. Terminiert HTTPS. Health-Check integriert.</p>
+    </div>
+    <div class="card">
+      <h4>📊 CloudWatch</h4>
+      <p>Logs, Metriken, Alarms. Zentrales Monitoring für alle AWS-Services.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>ECR — Container-Image pushen</h2>
+  <pre><code class="bash"># 1. Repository anlegen
+aws ecr create-repository \
+  --repository-name my-spring-app \
+  --region eu-central-1
+
+# 2. Docker bei ECR anmelden
+aws ecr get-login-password --region eu-central-1 \
+  | docker login --username AWS --password-stdin \
+    123456789.dkr.ecr.eu-central-1.amazonaws.com
+
+# 3. Image bauen, taggen, pushen
+docker build -t my-spring-app .
+
+docker tag my-spring-app:latest \
+  123456789.dkr.ecr.eu-central-1.amazonaws.com/my-spring-app:latest
+
+docker push \
+  123456789.dkr.ecr.eu-central-1.amazonaws.com/my-spring-app:latest</code></pre>
+  <div class="highlight-box aws" style="margin-top:0.5em;">
+    Im produktiven Einsatz übernimmt die <strong>CI/CD-Pipeline</strong> (GitHub Actions) diesen Prozess automatisch
+  </div>
+</section>
+
+<section>
+  <h2>ECS Task Definition <span class="badge aws">Kern-Konzept</span></h2>
+  <pre><code class="json">{
+  "family": "my-spring-app",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",          // 0.5 vCPU
+  "memory": "1024",      // 1 GB RAM
+  "containerDefinitions": [{
+    "name": "app",
+    "image": "123.dkr.ecr.eu-central-1.amazonaws.com/my-spring-app:latest",
+    "portMappings": [{ "containerPort": 8080 }],
+    "healthCheck": {
+      "command": ["CMD-SHELL",
+        "curl -f http://localhost:8080/actuator/health || exit 1"]
+    },
+    "secrets": [
+      { "name": "DB_PASSWORD",
+        "valueFrom": "arn:aws:secretsmanager:...my-app/db:password::" }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/my-spring-app",
+        "awslogs-region": "eu-central-1"
+      }
+    }
+  }]
+}</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: SICHERHEIT ═══ -->
+<section class="center-slide" data-background="rgba(231,76,60,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🔐</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Sicherheit in AWS</h2>
+    <p style="color:#aaa; font-size:0.8em;">Best Practices für produktiven Betrieb</p>
+  </div>
+</section>
+
+<section>
+  <h2>Secrets — Niemals im Code!</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:#e74c3c;font-weight:bold;">⚠ NIEMALS so:</p>
+      <pre><code class="properties"># application.properties ← im Git!
+spring.datasource.password=geheim123
+aws.secretKey=AKIA1234567890
+
+# Oder so:
+spring.datasource.password=\
+  ${DB_PASSWORD:geheim123}
+# Fallback-Wert ist sichtbar!</code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);font-weight:bold;">✅ Richtig so:</p>
+      <pre><code class="bash"># 1. Secret in AWS speichern
+aws secretsmanager create-secret \
+  --name "myapp/db" \
+  --secret-string \
+    '{"password":"sicher123"}'
+
+# 2. In ECS Task Definition referenzieren
+# (kein Passwort im Code/Config!)
+"secrets": [{
+  "name": "DB_PASSWORD",
+  "valueFrom": "arn:aws:...myapp/db:password::"
+}]</code></pre>
+    </div>
+  </div>
+  <div class="highlight-box danger" style="margin-top:0.5em;">
+    <strong>Rule #1:</strong> Kein Secret gelangt jemals in Git. IAM Roles statt Access Keys in Containern.
+  </div>
+</section>
+
+<section>
+  <h2>Network Security — VPC &amp; Security Groups</h2>
+  <div style="font-size:0.72em;font-family:monospace;background:rgba(0,0,0,0.3);padding:1em;border-radius:8px;line-height:2;">
+    <span style="color:var(--accent2);">Internet</span><br>
+    <span style="color:#888;">  ↓  Port 443 (HTTPS)</span><br>
+    <span style="color:var(--accent2);">ALB</span> <span style="color:#888;">(Public Subnet) ← SG: erlaubt 0.0.0.0/0 auf 443</span><br>
+    <span style="color:#888;">  ↓  Port 8080</span><br>
+    <span style="color:var(--accent);">ECS Container</span> <span style="color:#888;">(Private Subnet) ← SG: nur ALB darf auf 8080</span><br>
+    <span style="color:#888;">  ↓  Port 5432</span><br>
+    <span style="color:var(--accent2);">RDS PostgreSQL</span> <span style="color:#888;">(Private Subnet) ← SG: nur ECS darf auf 5432</span>
+  </div>
+  <ul class="checklist" style="margin-top:0.8em;">
+    <li>RDS: <code>--no-publicly-accessible</code> — nie direkt aus Internet erreichbar</li>
+    <li>Container in <strong>privaten Subnets</strong> — kein direkter Internet-Zugriff</li>
+    <li>Nur ALB in öffentlichem Subnet</li>
+    <li class="warn">Niemals Security Group <code>0.0.0.0/0</code> auf interne Services!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>IAM — Least Privilege Prinzip</h2>
+  <pre><code class="json">// ECS Task Role: Nur was die App wirklich braucht!
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"    // Secrets lesen
+      ],
+      "Resource": "arn:aws:secretsmanager:...:myapp/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",            // Logs schreiben
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:...:log-group:/ecs/myapp:*"
+    }
+  ]
+}</code></pre>
+  <div class="highlight-box danger" style="margin-top:0.5em;">
+    <strong>Kein <code>*</code> in Actions für produktive Rollen!</strong> Jede Permission explizit vergeben.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: MONITORING ═══ -->
+<section class="center-slide" data-background="rgba(255,153,0,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">📊</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Monitoring &amp; Logging</h2>
+    <p style="color:#aaa; font-size:0.8em;">CloudWatch + strukturiertes Logging</p>
+  </div>
+</section>
+
+<section>
+  <h2>Strukturiertes Logging für CloudWatch</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:#e74c3c;">❌ Unstrukturiert (schwer zu durchsuchen)</p>
+      <pre><code class="java">log.info("Benutzer 42 hat Produkt " +
+         productId + " für " + price +
+         " EUR bestellt");</code></pre>
+      <pre><code class="bash"># CloudWatch: schwer zu filtern
+2026-01-01 Benutzer 42 hat Produkt ...</code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);">✅ Strukturiert (JSON)</p>
+      <pre><code class="java">log.info("Order placed",
+  StructuredArguments.keyValue("userId", 42),
+  StructuredArguments.keyValue("productId", productId),
+  StructuredArguments.keyValue("price", price));</code></pre>
+      <pre><code class="json">{"level":"INFO",
+ "userId":42,
+ "productId":"ABC",
+ "price":29.99}</code></pre>
+    </div>
+  </div>
+  <div class="highlight-box aws" style="margin-top:0.5em;">
+    JSON-Logs können in CloudWatch Logs Insights mit SQL-ähnlichen Queries durchsucht werden
+  </div>
+</section>
+
+<section>
+  <h2>CloudWatch Logs Insights</h2>
+  <pre><code class="sql">-- Alle Fehler der letzten Stunde
+fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc
+| limit 50
+
+-- Durchschnittliche Response-Zeit
+fields @timestamp, responseTime
+| stats avg(responseTime) as avgTime by bin(5m)
+
+-- Fehlerrate pro Stunde
+fields @timestamp, level
+| filter level = "ERROR"
+| stats count() as errorCount by bin(1h)</code></pre>
+  <div class="highlight-box aws" style="margin-top:0.5em;">
+    Alarms lassen sich direkt auf diese Queries setzen → automatische Benachrichtigung bei Problemen
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: CI/CD ═══ -->
+<section class="center-slide" data-background="rgba(255,153,0,0.08)">
+  <div class="section-title">
+    <span style="font-size:3em;">🔁</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">CI/CD Pipeline</h2>
+    <p style="color:#aaa; font-size:0.8em;">Automatisch von Code zu Produktion</p>
+  </div>
+</section>
+
+<section>
+  <h2>CI/CD-Flow mit GitHub Actions</h2>
+  <div class="flow" style="flex-direction:column;gap:0.3em;">
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">1</span>
+      <div class="box">git push → main</div>
+      <span class="arrow">→ Trigger</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">2</span>
+      <div class="box">Tests ausführen (./gradlew test)</div>
+      <span class="arrow">→ Fail = kein Deploy!</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">3</span>
+      <div class="box">Docker Image bauen</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">4</span>
+      <div class="box aws">Image → ECR pushen</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">5</span>
+      <div class="box aws">ECS Task Definition updaten</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">6</span>
+      <div class="box aws">Rolling Deploy auf ECS</div>
+      <span class="arrow">→ Zero Downtime!</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5em;font-size:0.75em;">
+      <span class="num">7</span>
+      <div class="box">Health-Check</div>
+      <span class="arrow">→ Fail = automatisch Rollback</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Rolling Deploy — Zero Downtime</h2>
+  <div style="font-size:0.72em;font-family:monospace;background:rgba(0,0,0,0.3);padding:1em;border-radius:8px;line-height:2.2;">
+    <div style="color:#888;">Zeitpunkt 0: 3 Container mit v1.0 laufen</div>
+    <div>Container A: <span style="color:var(--accent);">[v1.0 ✓]</span>  Container B: <span style="color:var(--accent);">[v1.0 ✓]</span>  Container C: <span style="color:var(--accent);">[v1.0 ✓]</span></div>
+    <br>
+    <div style="color:#888;">Deploy v1.1: Ein Container nach dem anderen</div>
+    <div>Container A: <span style="color:var(--accent2);">[v1.1 starting...]</span>  B: <span style="color:var(--accent);">[v1.0 ✓]</span>  C: <span style="color:var(--accent);">[v1.0 ✓]</span></div>
+    <div>Container A: <span style="color:var(--accent);">[v1.1 ✓]</span>  B: <span style="color:var(--accent2);">[v1.1 starting...]</span>  C: <span style="color:var(--accent);">[v1.0 ✓]</span></div>
+    <div>Container A: <span style="color:var(--accent);">[v1.1 ✓]</span>  B: <span style="color:var(--accent);">[v1.1 ✓]</span>  C: <span style="color:var(--accent);">[v1.1 ✓]</span></div>
+  </div>
+  <div class="highlight-box aws" style="margin-top:0.6em;">
+    <strong>Wichtig:</strong> <code>server.shutdown=graceful</code> in Spring Boot! Laufende Requests werden abgeschlossen, bevor der Container stoppt.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION: CHECKLISTE ═══ -->
+<section>
+  <h2>Produktions-Checkliste <span class="badge aws">AWS</span></h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.75em;color:var(--accent);font-weight:bold;">Spring-App</p>
+      <ul class="checklist">
+        <li>Konstruktor-Injection überall</li>
+        <li><code>/actuator/health</code> konfiguriert</li>
+        <li>Graceful Shutdown aktiviert</li>
+        <li>Strukturiertes JSON-Logging</li>
+        <li>Unit- &amp; Integrationstests</li>
+        <li>Keine Secrets im Code/Config</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:0.75em;color:var(--accent2);font-weight:bold;">AWS</p>
+      <ul class="checklist">
+        <li>RDS nicht öffentlich zugänglich</li>
+        <li>Container in privaten Subnets</li>
+        <li>Secrets im Secrets Manager</li>
+        <li>IAM Least Privilege</li>
+        <li>HTTPS am ALB (ACM Zertifikat)</li>
+        <li>Auto Scaling (min. 2 Tasks)</li>
+        <li>CloudWatch Alarms konfiguriert</li>
+        <li>CI/CD Pipeline aufgesetzt</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ ABSCHLUSS ═══ -->
+<section class="center-slide" data-background="rgba(109,179,63,0.08)">
+  <div style="text-align:center;">
+    <h2 style="font-size:1.8em;">Was du jetzt kannst</h2>
+    <div class="cols3" style="margin-top:1em;text-align:left;">
+      <div class="card"><h4>🌱 Spring Basics</h4><p>IoC, DI, Bean-Lifecycle, Events, AOP</p></div>
+      <div class="card"><h4>🚀 Spring Boot</h4><p>REST-API, Actuator, Auto-Config</p></div>
+      <div class="card"><h4>🐳 Docker</h4><p>Multi-Stage Build, Health-Check, Non-Root</p></div>
+      <div class="card"><h4>☁️ AWS</h4><p>ECR, ECS Fargate, RDS, ALB</p></div>
+      <div class="card"><h4>🔐 Security</h4><p>Secrets Manager, VPC, IAM Least Privilege</p></div>
+      <div class="card"><h4>🔁 CI/CD</h4><p>GitHub Actions, Rolling Deploy, Zero Downtime</p></div>
+    </div>
+    <p style="font-size:0.75em;color:#666;margin-top:1.5em;">
+      Vollständiges Tutorial: <code>TUTORIAL.md</code> im Repository
+    </p>
+  </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    progress: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+    width: 1200,
+    height: 700,
+    margin: 0.04,
+    plugins: [RevealHighlight, RevealNotes],
+    highlight: {
+      highlightOnLoad: true
+    }
+  });
+</script>
+</body>
+</html>
