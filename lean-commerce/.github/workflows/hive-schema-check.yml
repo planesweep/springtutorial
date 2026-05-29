@@ -1,0 +1,67 @@
+name: Hive Schema Check
+
+on:
+  pull_request:
+    paths:
+      - 'apps/storefront/lib/graphql/schema/typeDefs.ts'
+
+jobs:
+  schema-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Schema gegen Hive Registry prüfen (Breaking Changes)
+        run: |
+          npx @graphql-hive/cli schema:check \
+            --service storefront \
+            --url http://localhost:3000/api/graphql \
+            apps/storefront/lib/graphql/schema/typeDefs.ts
+        env:
+          HIVE_TOKEN: ${{ secrets.HIVE_TOKEN }}
+        # Kein Fehler wenn HIVE_TOKEN nicht gesetzt (Demo-Modus)
+        continue-on-error: ${{ secrets.HIVE_TOKEN == '' }}
+
+  # Schema nach main-Merge publishen
+  schema-publish:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Schema an Hive Registry publishen
+        run: |
+          npx @graphql-hive/cli schema:publish \
+            --service storefront \
+            --author "GitHub Actions" \
+            --commit ${{ github.sha }} \
+            apps/storefront/lib/graphql/schema/typeDefs.ts
+        env:
+          HIVE_TOKEN: ${{ secrets.HIVE_TOKEN }}
+        continue-on-error: ${{ secrets.HIVE_TOKEN == '' }}

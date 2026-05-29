@@ -49,6 +49,27 @@
 
 ---
 
+## 1b. Freie Externe APIs (alle auf freepublicapis.com)
+
+| API | URL | Rolle in der Architektur | Endpoints |
+|---|---|---|---|
+| **FakeStore API** | `https://fakestoreapi.com` | Commerce Monolith | `GET /products`, `GET /products/{id}`, `GET /products/categories`, `POST /carts`, `PUT /carts/{id}` |
+| **DummyJSON API** | `https://dummyjson.com` | Search & Auth | `GET /products/search?q=`, `GET /products/category/:cat`, `POST /auth/login`, `GET /auth/me` |
+| **Open-Meteo API** | `https://api.open-meteo.com/v1/forecast` | Wetter-Feature | `?latitude=&longitude=&current_weather=true&daily=...` |
+
+**Kein API-Key erforderlich** für alle drei APIs. Kostenlos, täglich getestet.
+
+### Open-Meteo → Wetterbasierte Empfehlungs-Logik
+
+```
+Regen / Gewitter  → raincoat, umbrella, boots
+Schnee            → winter, boots, gloves, jacket
+Klar + > 22°C     → sunglasses, shorts, tshirt, sunscreen
+Kalt < 10°C       → jacket, sweater, scarf
+```
+
+---
+
 ## 2. Technologie-Stack
 
 | Layer | Technologie | Version | Begründung |
@@ -63,9 +84,9 @@
 | **GraphQL Client** | urql / gql.tada | latest | Lightweight, type-safe |
 | **State Management** | Zustand | 4.x | Minimal boilerplate für Cart/Session |
 | **Data Fetching** | TanStack Query | 5.x | Client-side cache, background sync |
-| **Mock Backends** | json-server + custom REST | - | Simuliert Legacy Commerce Monolith |
-| **Search Mock** | Meilisearch (local) | - | Algolia-kompatible API lokal |
-| **CMS Mock** | Strapi (self-hosted) | 4.x | Echte GraphQL/REST API |
+| **Commerce Backend** | **FakeStore API** | freepublicapis.com | Produkte, Kategorien, Warenkorb — kein Key |
+| **Search Backend** | **DummyJSON API** | freepublicapis.com | Volltext-Suche, Facetten, Auth — kein Key |
+| **Wetter Backend** | **Open-Meteo API** | freepublicapis.com | Wetterdaten + Forecast — kein Key, kein Limit |
 | **Testing** | Jest + React Testing Library | - | Unit & Integration |
 | **E2E** | Playwright | - | Browser-Automatisierung |
 | **CI/CD** | GitHub Actions | - | Lint, Test, Hive Schema CI |
