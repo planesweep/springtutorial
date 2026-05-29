@@ -5,6 +5,7 @@
  */
 
 import { FakeStoreAPI } from '@/lib/graphql/datasources/FakeStoreAPI'
+import { encodeProductId } from '@/lib/product-id'
 import { ProductCard } from './ProductCard'
 
 interface ProductGridProps {
@@ -25,7 +26,7 @@ export async function ProductGrid({ category, sort = 'asc', limit }: ProductGrid
       {products.map(p => (
         <ProductCard
           key={p.id}
-          id={String(p.id)}
+          id={encodeProductId('fakestore', p.id)}
           title={p.title}
           price={p.price}
           image={p.image}

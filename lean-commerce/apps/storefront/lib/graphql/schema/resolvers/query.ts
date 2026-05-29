@@ -9,13 +9,15 @@
 import { FakeStoreAPI } from '../../datasources/FakeStoreAPI'
 import { DummyJsonAPI } from '../../datasources/DummyJsonAPI'
 import { OpenMeteoAPI, decodeWeatherCode, getWeatherProductTags } from '../../datasources/OpenMeteoAPI'
+import { encodeProductId, decodeProductId } from '../../../product-id'
 import type { GraphQLContext } from '../../context'
 
-// Helpers: FakeStore-Produkt → GraphQL Product Type mappen
+// Helpers: FakeStore-Produkt → GraphQL Product Type mappen.
+// IDs werden quell-präfigiert (fakestore_X), damit sie eindeutig bleiben.
 function mapFakeProduct(p: Awaited<ReturnType<typeof FakeStoreAPI.getProductById>>) {
   if (!p) return null
   return {
-    id: String(p.id),
+    id: encodeProductId('fakestore', p.id),
     title: p.title,
     price: p.price,
     description: p.description,
@@ -30,7 +32,7 @@ function mapFakeProduct(p: Awaited<ReturnType<typeof FakeStoreAPI.getProductById
 // DummyJSON-Produkt → GraphQL Product Type mappen
 function mapDummyProduct(p: NonNullable<Awaited<ReturnType<typeof DummyJsonAPI.getProductById>>>) {
   return {
-    id: String(p.id),
+    id: encodeProductId('dummyjson', p.id),
     title: p.title,
     price: p.price,
     description: p.description,
@@ -106,15 +108,19 @@ export const queryResolvers = {
       return products.map(mapFakeProduct).filter(Boolean)
     },
 
-    /** Einzelnes Produkt: primär FakeStore, falls nicht gefunden DummyJSON als Fallback. */
+    /**
+     * Einzelnes Produkt anhand der Composite-ID.
+     * Die Quelle (fakestore/dummyjson) ist in der ID kodiert → eindeutiges Routing,
+     * kein Konflikt mehr zwischen überlappenden numerischen IDs.
+     */
     product: async (_: unknown, args: { id: string }) => {
-      const numId = parseInt(args.id, 10)
-      const fp = await FakeStoreAPI.getProductById(numId)
-      if (fp) return mapFakeProduct(fp)
-
-      // Fallback: DummyJSON enthält tausende Produkte
-      const dp = await DummyJsonAPI.getProductById(numId)
-      return dp ? mapDummyProduct(dp) : null
+      const { source, id } = decodeProductId(args.id)
+      if (source === 'dummyjson') {
+        const dp = await DummyJsonAPI.getProductById(id)
+        return dp ? mapDummyProduct(dp) : null
+      }
+      const fp = await FakeStoreAPI.getProductById(id)
+      return fp ? mapFakeProduct(fp) : null
     },
 
     /** Kategorien von FakeStore API (men's clothing, electronics, etc.) */

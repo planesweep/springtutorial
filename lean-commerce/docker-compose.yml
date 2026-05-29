@@ -1,0 +1,86 @@
+# docker-compose.yml — Development
+#
+# Startet die Storefront im Entwicklungsmodus mit Hot Reload.
+# Source-Code wird als Volume gemountet → Änderungen sofort sichtbar.
+#
+# Verwendung:
+#   docker compose up              → im Vordergrund
+#   docker compose up -d           → im Hintergrund
+#   docker compose logs -f         → Logs streamen
+#   docker compose down            → stoppen und Container entfernen
+#
+# Voraussetzung: apps/storefront/.env.local existiert (cp .env.example .env.local)
+
+name: lean-commerce-dev
+
+services:
+
+  # ── Next.js Storefront + GraphQL BFF ─────────────────────────────────────
+  storefront:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: lean-commerce-dev:latest
+    container_name: lean-commerce-storefront-dev
+
+    ports:
+      - "3000:3000"
+
+    # Source als Volume → Hot Reload
+    # node_modules als Named Volume → nicht mit Host überschrieben
+    volumes:
+      - .:/app
+      - storefront_node_modules:/app/node_modules
+      - storefront_app_node_modules:/app/apps/storefront/node_modules
+      - storefront_next_cache:/app/apps/storefront/.next
+
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Hostname für Docker-Networking
+      HOSTNAME: "0.0.0.0"
+
+    # Umgebungsvariablen aus .env.local laden (optional, kein Fehler wenn fehlt)
+    env_file:
+      - path: ./apps/storefront/.env.local
+        required: false
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s   # Next.js braucht Zeit beim ersten Start
+
+    # Graceful Shutdown
+    stop_grace_period: 10s
+
+    # Logging: JSON mit Rotation
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── Redis (optional, auskommentiert) ─────────────────────────────────────
+  # Für persistenten Response Cache statt In-Memory.
+  # Aktivieren und REDIS_URL=redis://redis:6379 in .env.local setzen.
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: lean-commerce-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  storefront_node_modules:
+  storefront_app_node_modules:
+  storefront_next_cache:
+  # redis_data:

@@ -2,12 +2,26 @@
  * WeatherWidget — async Server Component für die Homepage.
  * Kompakte Anzeige: Icon, Temperatur, Windgeschwindigkeit.
  * Wird via Suspense gestreamt (Open-Meteo API kann 1-2s brauchen).
+ *
+ * Resilienz: Schlägt der Open-Meteo-Abruf fehl (z.B. eingeschränktes Netz beim
+ * statischen Prerender), wird ein Fallback gerendert statt den Build/SSR zu
+ * crashen. Die Seite bleibt funktionsfähig.
  */
 
 import { OpenMeteoAPI, decodeWeatherCode } from '@/lib/graphql/datasources/OpenMeteoAPI'
 
 export async function WeatherWidget() {
-  const weather = await OpenMeteoAPI.getStoreWeather()
+  let weather: Awaited<ReturnType<typeof OpenMeteoAPI.getStoreWeather>>
+  try {
+    weather = await OpenMeteoAPI.getStoreWeather()
+  } catch {
+    return (
+      <div className="bg-gray-50 border border-gray-100 rounded-xl p-6 text-gray-400 text-sm">
+        Wetterdaten momentan nicht verfügbar (Open-Meteo nicht erreichbar).
+      </div>
+    )
+  }
+
   const { label, icon } = decodeWeatherCode(weather.current_weather.weathercode)
 
   return (

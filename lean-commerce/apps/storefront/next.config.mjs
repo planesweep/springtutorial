@@ -1,16 +1,41 @@
-import type { NextConfig } from 'next'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// Monorepo-Root robust bestimmen (unabhängig vom aktuellen Arbeitsverzeichnis):
+// next.config.mjs liegt in apps/storefront/ → zwei Ebenen hoch = Repo-Root.
+const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 /**
- * Next.js 14 Konfiguration.
+ * Next.js 14.2 Konfiguration.
+ *
+ * Hinweis: Next 14.2 unterstützt KEINE next.config.ts (erst ab Next 15) →
+ * diese Datei ist bewusst .mjs mit JSDoc-Typannotation.
  *
  * Wichtige Feature-Flags:
- * - serverExternalPackages: graphql-yoga läuft nur server-seitig
- * - images.remotePatterns: externe Bild-Domains für Next/Image Optimierung
- * - headers: Security Headers für alle Routen
+ * - output: 'standalone'                           → schlankes Docker-Image
+ * - experimental.outputFileTracingRoot             → Monorepo-Dateien korrekt tracen
+ * - experimental.serverComponentsExternalPackages  → Server-only Pakete nicht bundlen
+ *   (In Next 14.2 liegen diese Keys unter `experimental`; erst ab Next 15 top-level.)
+ *
+ * @type {import('next').NextConfig}
  */
-const config: NextConfig = {
-  // Verhindert dass Yoga/graphql im Client-Bundle landet
-  serverExternalPackages: ['graphql-yoga', 'graphql', '@graphql-hive/yoga'],
+const config = {
+  // Standalone Output: alle benötigten Dateien werden in .next/standalone/ kopiert.
+  output: 'standalone',
+
+  experimental: {
+    // Standalone-Build muss vom Monorepo-Root tracen, sonst fehlen Workspace-Deps
+    outputFileTracingRoot: repoRoot,
+    // Server-only Pakete: nicht ins RSC/Client-Bundle ziehen.
+    // ioredis + redis-cache werden nur bei gesetzter REDIS_URL via require() geladen.
+    serverComponentsExternalPackages: [
+      'graphql-yoga',
+      'graphql',
+      '@graphql-hive/yoga',
+      'ioredis',
+      '@envelop/response-cache-redis',
+    ],
+  },
 
   images: {
     remotePatterns: [

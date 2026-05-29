@@ -4,6 +4,7 @@
  */
 
 import { DummyJsonAPI } from '@/lib/graphql/datasources/DummyJsonAPI'
+import { encodeProductId } from '@/lib/product-id'
 import { ProductCard } from '@/components/product/ProductCard'
 
 interface Props {
@@ -26,7 +27,7 @@ export async function SearchResults({ query, category, includeWeatherRecs }: Pro
       {/* Ergebnis-Info + Facetten */}
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm text-gray-500">
-          {result.total} Treffer für „{query}"
+          {result.total} Treffer für „{query}&ldquo;
         </span>
         {Array.from(categoryMap.entries()).map(([cat, count]) => (
           <a
@@ -46,7 +47,7 @@ export async function SearchResults({ query, category, includeWeatherRecs }: Pro
           {result.products.map(p => (
             <ProductCard
               key={p.id}
-              id={String(p.id)}
+              id={encodeProductId('dummyjson', p.id)}
               title={p.title}
               price={p.price}
               image={p.thumbnail}

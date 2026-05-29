@@ -177,7 +177,7 @@ lean-commerce/                          ← Monorepo Root
 │   │   │   └── utils/                  ← Formatierung, Helpers
 │   │   │
 │   │   ├── middleware.ts               ← Edge Middleware (Auth, i18n, A/B)
-│   │   ├── next.config.ts              ← Next.js Config (Images, Headers)
+│   │   ├── next.config.mjs             ← Next.js Config (Next 14.2: .mjs, NICHT .ts)
 │   │   └── tailwind.config.ts
 │   │
 │   └── bff/                            ← GraphQL BFF (Yoga Server)

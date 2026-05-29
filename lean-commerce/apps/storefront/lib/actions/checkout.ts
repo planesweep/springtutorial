@@ -20,6 +20,7 @@ export async function checkoutAction(lines: CartLine[]) {
 
   const total = lines.reduce((sum, l) => sum + l.price * l.quantity, 0)
 
+  // eslint-disable-next-line no-console -- Demo: Bestellung serverseitig protokollieren
   console.log('[Server Action] Checkout:', {
     lines: lines.map(l => ({ id: l.productId, title: l.title, qty: l.quantity })),
     total: total.toFixed(2),

@@ -10,7 +10,8 @@ import { useCartStore } from '@/lib/store/cart'
 import { useState } from 'react'
 
 interface Props {
-  productId: number
+  /** Composite Product-ID (z.B. "fakestore_5"). */
+  productId: string
   productTitle: string
   price: number
   image?: string
