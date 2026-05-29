@@ -11,6 +11,7 @@
 import type { Metadata } from 'next'
 import { OpenMeteoAPI, decodeWeatherCode, getWeatherProductTags } from '@/lib/graphql/datasources/OpenMeteoAPI'
 import { DummyJsonAPI } from '@/lib/graphql/datasources/DummyJsonAPI'
+import { encodeProductId } from '@/lib/product-id'
 import { WeatherCard } from '@/components/weather/WeatherCard'
 import { WeatherForecastList } from '@/components/weather/WeatherForecastList'
 import { ProductCard } from '@/components/product/ProductCard'
@@ -118,7 +119,7 @@ export default async function WeatherPage({ searchParams }: PageProps) {
           {searchResult.products.map(p => (
             <ProductCard
               key={p.id}
-              id={String(p.id)}
+              id={encodeProductId('dummyjson', p.id)}
               title={p.title}
               price={p.price}
               image={p.thumbnail}

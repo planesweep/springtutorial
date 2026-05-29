@@ -20,6 +20,7 @@
     "@graphql-hive/yoga": "^0.38.0",
     "@graphql-yoga/plugin-response-cache": "^3.6.0",
     "@graphql-yoga/plugin-persisted-operations": "^3.6.0",
+    "dataloader": "^2.2.3",
 
     "urql": "^4.1.0",
     "@urql/exchange-persisted": "^4.1.0",
@@ -33,8 +34,8 @@
     "clsx": "^2.1.0",
     "tailwind-merge": "^2.2.0",
 
-    "keyv": "^4.5.4",
-    "@keyv/redis": "^2.8.5",
+    "ioredis": "^5.4.2",
+    "@envelop/response-cache-redis": "^4.3.1",
 
     "jose": "^5.2.4",
     "zod": "^3.22.4"

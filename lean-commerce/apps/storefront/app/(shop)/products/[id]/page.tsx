@@ -7,12 +7,17 @@
  *  - generateMetadata: dynamische SEO-Tags aus Produktdaten
  *  - Next/Image: automatische Bildoptimierung
  *  - notFound(): korrekter 404 wenn Produkt nicht existiert
+ *
+ * Produkte werden über die Composite-ID (z.B. "fakestore_5") eindeutig aus
+ * der richtigen Quelle aufgelöst — siehe lib/products.ts / lib/product-id.ts.
  */
 
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { FakeStoreAPI } from '@/lib/graphql/datasources/FakeStoreAPI'
+import { getUnifiedProduct } from '@/lib/products'
+import { encodeProductId } from '@/lib/product-id'
 import { AddToCartButton } from '@/components/cart/AddToCartButton'
 
 // ISR: alle 5 Minuten revalidieren
@@ -23,17 +28,23 @@ interface PageProps {
 }
 
 /**
- * Build-Zeit: Die ersten 20 Produkt-IDs statisch generieren.
- * Alle anderen IDs werden on-demand gerendert und dann gecacht (ISR).
+ * Build-Zeit: Die ersten 20 FakeStore-Produkt-IDs statisch generieren.
+ * DummyJSON-Produkte (aus der Suche) werden on-demand gerendert und gecacht (ISR).
  */
 export async function generateStaticParams() {
-  const products = await FakeStoreAPI.getProducts({ limit: 20 })
-  return products.map(p => ({ id: String(p.id) }))
+  try {
+    const products = await FakeStoreAPI.getProducts({ limit: 20 })
+    return products.map(p => ({ id: encodeProductId('fakestore', p.id) }))
+  } catch {
+    // Upstream beim Build nicht erreichbar (z.B. eingeschränktes Build-Netz)
+    // → keine Seiten vorab generieren; alle werden on-demand via ISR gerendert.
+    return []
+  }
 }
 
 /** Dynamische Metadata aus den Produktdaten. */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const product = await FakeStoreAPI.getProductById(parseInt(params.id, 10))
+  const product = await getUnifiedProduct(params.id)
   if (!product) return { title: 'Produkt nicht gefunden' }
   return {
     title: product.title,
@@ -46,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  const product = await FakeStoreAPI.getProductById(parseInt(params.id, 10))
+  const product = await getUnifiedProduct(params.id)
 
   // notFound() gibt 404 zurück — korrekte HTTP-Semantik
   if (!product) notFound()
@@ -89,10 +100,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <p className="text-gray-600 leading-relaxed">{product.description}</p>
 
         {/* AddToCartButton ist ein Client Component (interaktiv) */}
-        <AddToCartButton productId={product.id} productTitle={product.title} price={product.price} />
+        <AddToCartButton
+          productId={product.id}
+          productTitle={product.title}
+          price={product.price}
+          image={product.image}
+        />
 
         <div className="text-xs text-gray-400 border-t pt-4">
-          Produkt-ID: {product.id} · Quelle: FakeStore API · ISR 5 Min
+          Produkt-ID: {product.id} · Quelle: {product.source} · ISR 5 Min
         </div>
       </div>
     </div>

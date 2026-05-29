@@ -13,7 +13,8 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
 export interface CartLine {
-  productId: number
+  /** Composite Product-ID (z.B. "fakestore_5") — eindeutig über beide Quellen. */
+  productId: string
   title: string
   price: number
   image: string
@@ -23,8 +24,8 @@ export interface CartLine {
 interface CartStore {
   lines: CartLine[]
   addLine: (item: Omit<CartLine, 'quantity'> & { quantity?: number }) => void
-  removeLine: (productId: number) => void
-  updateQuantity: (productId: number, quantity: number) => void
+  removeLine: (productId: string) => void
+  updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   totalItems: () => number
 }

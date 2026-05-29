@@ -275,15 +275,51 @@ Alle Variablen sind in `.env.example` dokumentiert. Pflicht-Variablen:
 
 ---
 
-## Bekannte Einschränkungen
+## Verifizierter Status
+
+Lokal verifiziert (Node 20, pnpm 9):
+
+```
+✓ pnpm install        → Abhängigkeiten aufgelöst
+✓ pnpm typecheck      → 0 Fehler
+✓ pnpm lint           → 0 Warnungen/Fehler
+✓ pnpm build          → erfolgreich (standalone output)
+```
+
+Die Standalone-Output-Struktur (`apps/storefront/server.js` + Root-`node_modules`)
+wurde gegen den Dockerfile-`CMD`-Pfad geprüft.
+
+> **Hinweis Docker:** In dieser Umgebung war kein Docker-Daemon verfügbar, daher
+> wurde `docker compose build` nicht real ausgeführt. Der native Build (das, was
+> Docker im `builder`-Stage verpackt) ist verifiziert.
+
+> **Hinweis Netzwerk:** Die drei externen APIs müssen zur **Laufzeit** erreichbar
+> sein. Beim **Build** sind sie nicht nötig — `generateStaticParams` und die
+> Homepage-Komponenten fangen Fehler ab und fallen auf On-Demand-Rendering bzw.
+> Fallback-UI zurück.
+
+---
+
+## Behobene Findings (Code Review Runde 2)
+
+| Finding | Lösung |
+|---|---|
+| **N+1 Cart** | Per-Request **DataLoader** (`lib/graphql/loaders.ts`) — gesamter Katalog wird pro Operation EINMAL geladen; `subtotal` + `product` teilen den Cache. |
+| **ID-Konflikt** | **Composite-IDs** (`fakestore_5` / `dummyjson_5`, `lib/product-id.ts`) — jede Quelle eindeutig adressierbar, end-to-end (Listing, Suche, Detail, Cart). |
+| **In-Memory Cache** | Cache-Backend **pluggable**: `REDIS_URL` gesetzt → Redis (`@envelop/response-cache-redis`), sonst In-Memory. |
+| **next.config.ts** | Next 14.2 unterstützt kein `.ts` → konvertiert zu **`next.config.mjs`**. |
+| **Config-Keys** | `outputFileTracingRoot` + `serverComponentsExternalPackages` unter `experimental` verschoben (Next-14.2-korrekt). |
+| **Standalone-Pfad** | `outputFileTracingRoot` = Monorepo-Root → Pfad `apps/storefront/server.js` verifiziert. |
+| **Route-Export** | Yoga über `handleRequest` exportiert (App-Router-konforme Signatur). |
+| **Hive-Optionen** | `enabled` nur top-level (nicht in `reporting`/`usage`) — für `@graphql-hive/yoga@0.38`. |
+| **Build-Resilienz** | Build-Zeit-Fetches fangen Fehler ab → Build bricht nicht bei nicht erreichbarem Upstream. |
+
+## Verbleibende Einschränkungen
 
 | Problem | Beschreibung | Priorität |
 |---|---|---|
-| **N+1 Cart** | `Cart.subtotal` macht N parallele API-Calls (einen pro Produkt). In Production: DataLoader verwenden. | Mittel |
-| **In-Memory Cache** | `useResponseCache` verliert den Cache bei Neustart. Für Multi-Instance: Redis aktivieren (docker-compose.yml, auskommentiert). | Niedrig |
-| **FakeStore Write-Through** | Cart-Mutationen von FakeStore API sind Fake-Responses — Daten werden nicht persistent gespeichert. Nur für Demo. | Bekannt |
-| **DummyJSON ID-Konflikt** | FakeStore IDs 1-20 und DummyJSON IDs 1-194 überschneiden sich. Der `product(id)` Resolver bevorzugt FakeStore — DummyJSON-Produkte unter gleicher ID sind nur via Search erreichbar. | Niedrig |
-| **Standalone-Pfad** | `server.js` Pfad im Docker-Runner hängt von der pnpm-Version ab. Bei Problemen: `CMD ["node", "server.js"]` ohne Unterverzeichnis versuchen. | Mittel |
+| **FakeStore Write-Through** | Cart-Mutationen der FakeStore API sind nicht persistent (Eigenschaft der externen Demo-API). Funktionaler Warenkorb läuft client-seitig über den Zustand-Store. | Inhärent |
+| **`ttlPerType` Deprecation** | `useResponseCache` gibt einen Deprecation-Hinweis aus (library-intern). Funktion intakt. | Niedrig |
 
 ---
 
