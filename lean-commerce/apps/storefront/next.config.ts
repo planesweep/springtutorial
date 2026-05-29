@@ -9,6 +9,10 @@ import type { NextConfig } from 'next'
  * - headers: Security Headers für alle Routen
  */
 const config: NextConfig = {
+  // Standalone Output: alle benötigten Dateien werden in .next/standalone/ kopiert.
+  // Ermöglicht schlanke Docker-Images ohne vollständigen node_modules-Baum.
+  output: 'standalone',
+
   // Verhindert dass Yoga/graphql im Client-Bundle landet
   serverExternalPackages: ['graphql-yoga', 'graphql', '@graphql-hive/yoga'],
 

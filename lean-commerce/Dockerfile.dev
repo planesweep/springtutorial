@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1
+#
+# Development Dockerfile mit Hot Reload
+# Source-Code wird als Volume gemountet → Änderungen sofort sichtbar
+#
+# Nicht für Production verwenden!
+# Für Production: Dockerfile (ohne .dev)
+
+FROM node:20-alpine
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+# Nur package.json für Layer-Cache
+COPY package.json pnpm-workspace.yaml turbo.json ./
+COPY apps/storefront/package.json ./apps/storefront/package.json
+
+# Alle Deps installieren (inkl. devDeps)
+RUN pnpm install --no-frozen-lockfile
+
+# Source-Code wird zur Laufzeit als Volume gemountet (docker-compose.yml)
+# Der node_modules-Ordner bleibt im Container (Named Volume)
+
+EXPOSE 3000
+
+CMD ["pnpm", "--filter", "storefront", "dev"]

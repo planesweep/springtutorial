@@ -1,0 +1,89 @@
+# docker-compose.prod.yml — Production Build
+#
+# Optimiertes Production-Image (standalone output, ~200MB).
+# KEIN Volume-Mount — alle Dateien sind im Image gebacken.
+#
+# Verwendung:
+#   docker compose -f docker-compose.prod.yml build
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml down
+#
+# Secrets: NIEMALS .env.local ins Image baken!
+# Stattdessen: env_file oder Docker Secrets / Kubernetes Secrets verwenden.
+
+name: lean-commerce-prod
+
+services:
+
+  storefront:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_APP_VERSION: ${APP_VERSION:-0.1.0}
+    image: lean-commerce:${APP_VERSION:-latest}
+    container_name: lean-commerce-storefront
+
+    ports:
+      - "3000:3000"
+
+    # Keine Volumes — Production-Image ist self-contained
+    read_only: false   # Next.js schreibt in /tmp
+
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+
+    # Secrets über env_file oder explizite environment-Einträge
+    # NIEMALS HIVE_TOKEN oder JWT_SECRET als ARG im Dockerfile!
+    env_file:
+      - path: ./apps/storefront/.env.local
+        required: false
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ── Traefik Reverse Proxy (optional) ─────────────────────────────────────
+  # Für HTTPS + automatische Let's Encrypt Zertifikate.
+  # Auskommentieren und an eigene Domain anpassen.
+  #
+  # proxy:
+  #   image: traefik:v3.0
+  #   command:
+  #     - "--providers.docker=true"
+  #     - "--entrypoints.web.address=:80"
+  #     - "--entrypoints.websecure.address=:443"
+  #     - "--certificatesresolvers.letsencrypt.acme.email=admin@example.com"
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - traefik_certs:/certs
+  #
+  # volumes:
+  #   traefik_certs:

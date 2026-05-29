@@ -1,20 +1,18 @@
 /**
  * GraphQL BFF — Next.js Route Handler
  *
- * Dies ist der zentrale Einstiegspunkt für alle GraphQL-Anfragen.
- * Läuft als Next.js Edge-kompatible Route (Node.js Runtime).
- *
- * URL:  POST /api/graphql   → GraphQL Operation
- *       GET  /api/graphql   → GraphiQL Playground (nur Development)
+ * Einstiegspunkt für alle GraphQL-Anfragen.
+ *  POST /api/graphql  → GraphQL Operation
+ *  GET  /api/graphql  → GraphiQL Playground (nur Development)
  *
  * Plugin Stack (Envelop):
- *  1. useHive              → Schema Reporting + Usage Analytics (optional)
- *  2. useResponseCache     → In-Memory Cache für teure Queries (60s TTL)
- *  3. usePersistedOperations → Hash-basierte Queries (Production Security)
+ *  1. useResponseCache     → In-Memory Cache (60s TTL für Produkt-Queries)
+ *  2. usePersistedOperations → Hash-basierte Queries (Production Security)
+ *  3. useHive              → Schema Reporting + Usage Analytics (optional)
  *
- * Externe Datenquellen:
- *  - FakeStore API  (https://fakestoreapi.com)  → Produkte, Warenkorb
- *  - DummyJSON API  (https://dummyjson.com)     → Suche, Auth
+ * Externe Datenquellen (alle kostenlos, kein API-Key):
+ *  - FakeStore API  (https://fakestoreapi.com)   → Produkte, Warenkorb
+ *  - DummyJSON API  (https://dummyjson.com)      → Suche, Auth
  *  - Open-Meteo API (https://api.open-meteo.com) → Wetterdaten
  */
 
@@ -24,48 +22,73 @@ import { usePersistedOperations } from '@graphql-yoga/plugin-persisted-operation
 import { schema } from '@/lib/graphql/schema'
 import { buildContext } from '@/lib/graphql/context'
 
-// Persisted Operations Store — in Production: aus Hive CDN laden
-// Schlüssel = SHA256-Hash des Query-Dokuments, Wert = Query-String
-const persistedOpsStore: Record<string, string> = {
-  // Einträge werden von graphql-codegen befüllt (persisted-documents plugin)
-  // Beispiel:
-  // 'abc123...': 'query Products { products { id title price } }',
+// Hive-Plugin: wird nur initialisiert wenn HIVE_TOKEN gesetzt ist.
+// Synchroner Import (kein top-level await) — Paket ist in dependencies,
+// also immer verfügbar. useHive() gibt bei fehlendem Token einen No-op zurück.
+let hivePlugin: ReturnType<typeof import('@graphql-hive/yoga')['useHive']> | null = null
+
+if (process.env.HIVE_TOKEN) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useHive } = require('@graphql-hive/yoga') as typeof import('@graphql-hive/yoga')
+    hivePlugin = useHive({
+      enabled: true,
+      token: process.env.HIVE_TOKEN,
+      reporting: {
+        enabled: true,
+        author: 'BFF Storefront',
+        commit: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GIT_SHA ?? 'local',
+      },
+      usage: {
+        enabled: true,
+        clientInfo(ctx: { request: Request }) {
+          const name = ctx.request.headers.get('x-graphql-client-name') ?? 'unknown'
+          const version = ctx.request.headers.get('x-graphql-client-version') ?? '0.0.0'
+          return { name, version }
+        },
+      },
+    })
+  } catch {
+    console.warn('[BFF] @graphql-hive/yoga konnte nicht geladen werden')
+  }
 }
+
+// Persisted Operations Store.
+// Produktion: über Hive CDN oder graphql-codegen befüllt.
+// Development: allowArbitraryOperations = true → Store wird ignoriert.
+const persistedOpsStore: Record<string, string> = {}
 
 const yoga = createYoga({
   schema,
   context: buildContext,
 
-  // GraphiQL nur in Development anzeigen
+  // GraphiQL nur in Development zugänglich
   graphiql: process.env.NODE_ENV === 'development',
 
   plugins: [
-    // ── Response Cache ──────────────────────────────────────────────────────
-    // Cacht Query-Responses in-memory. TTL: 60s für Produkt-Queries.
-    // Cart, User und Mutations werden NIEMALS gecacht (TTL 0).
+    // ── 1. Response Cache ────────────────────────────────────────────────────
+    // In-Memory Cache für teure Queries. TTL 60s für Produkte.
+    // Cart/User/AuthPayload: TTL 0 → niemals cachen (user-spezifisch/volatil).
     useResponseCache({
-      // Public cache: kein User-spezifischer Schlüssel
       session: () => null,
       ttl: 60_000,
       ttlPerType: {
-        // User-spezifische und volatile Types immer fresh
         Cart: 0,
         User: 0,
         AuthPayload: 0,
       },
       ttlPerSchemaCoordinate: {
-        // Wetter hat eigenen Cache (30 Min via fetch, hier 5 Min Fallback)
+        // Wetterdaten: 5 Min im GraphQL Cache (fetch selbst hat 30 Min)
         'Query.storeWeather': 300_000,
         'Query.weather': 300_000,
       },
     }),
 
-    // ── Persisted Operations ─────────────────────────────────────────────────
-    // In Production: nur bekannte (vorab registrierte) Queries erlauben.
-    // Verhindert beliebige Queries von unbekannten Clients.
+    // ── 2. Persisted Operations ──────────────────────────────────────────────
+    // Production: Client sendet nur den SHA256-Hash, nicht den Query-Text.
+    // Schützt vor unbekannten Queries von externen Clients.
     usePersistedOperations({
       getPersistedOperation: async (hash: string) => {
-        // Hive CDN Integration (wenn konfiguriert):
         if (process.env.HIVE_CDN_ENDPOINT && process.env.HIVE_CDN_KEY) {
           const res = await fetch(
             `${process.env.HIVE_CDN_ENDPOINT}/apps/persisted-documents/${hash}`,
@@ -73,56 +96,20 @@ const yoga = createYoga({
           )
           if (res.ok) return res.text()
         }
-        // Fallback: lokaler Store
         return persistedOpsStore[hash] ?? null
       },
-      // In Development: direkte Queries immer erlauben (kein Hash nötig)
       allowArbitraryOperations: process.env.NODE_ENV !== 'production',
     }),
 
-    // ── GraphQL Hive ─────────────────────────────────────────────────────────
-    // Nur wenn HIVE_TOKEN gesetzt ist (optional für Development).
-    // useHive() wird dynamisch importiert um den Build nicht zu brechen.
-    ...(await loadHivePlugin()),
+    // ── 3. GraphQL Hive (optional) ───────────────────────────────────────────
+    // Schema-Versionierung und Query-Tracking. Aktiviert nur mit HIVE_TOKEN.
+    ...(hivePlugin ? [hivePlugin] : []),
   ],
 })
 
-/** Lädt das Hive-Plugin nur wenn HIVE_TOKEN konfiguriert ist. */
-async function loadHivePlugin() {
-  if (!process.env.HIVE_TOKEN) return []
-  try {
-    const { useHive } = await import('@graphql-hive/yoga')
-    return [
-      useHive({
-        enabled: true,
-        token: process.env.HIVE_TOKEN,
-        // Schema bei jedem Start an Hive Registry melden
-        reporting: {
-          enabled: true,
-          author: 'BFF Storefront',
-          commit: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GIT_SHA ?? 'local',
-        },
-        // Jede GraphQL-Operation tracken (Usage Analytics)
-        usage: {
-          enabled: true,
-          // Clients identifizieren sich über Header
-          clientInfo(ctx: { request: Request }) {
-            const name = ctx.request.headers.get('x-graphql-client-name') ?? 'unknown'
-            const version = ctx.request.headers.get('x-graphql-client-version') ?? '0.0.0'
-            return { name, version }
-          },
-        },
-      }),
-    ]
-  } catch {
-    console.warn('[BFF] Hive plugin nicht geladen (HIVE_TOKEN gesetzt aber Paket fehlt?)')
-    return []
-  }
-}
-
-// Next.js Route Handler: GET und POST an Yoga delegieren
+// Next.js Route Handler Exports: Yoga implementiert das Web Fetch API
 export const GET = yoga
 export const POST = yoga
 
-// Node.js Runtime (nicht Edge) — graphql-yoga benötigt Node APIs
+// Node.js Runtime — graphql-yoga benötigt Node.js APIs (nicht Edge Runtime)
 export const runtime = 'nodejs'

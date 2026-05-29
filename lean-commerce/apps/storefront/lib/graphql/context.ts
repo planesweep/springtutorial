@@ -1,13 +1,14 @@
 /**
  * GraphQL Execution Context.
  * Wird für jede Request-Instanz neu erstellt.
- * Enthält: JWT-Token des eingeloggten Users (falls vorhanden).
+ * Enthält: den rohen JWT-Token aus dem Authorization Header.
+ * User-Daten werden lazy im `me` Resolver via DummyJsonAPI.getCurrentUser() geladen.
  */
 
 import type { YogaInitialContext } from 'graphql-yoga'
 
 export interface GraphQLContext {
-  /** Raw JWT aus dem Authorization Header (Bearer <token>). */
+  /** Raw JWT aus dem Authorization Header (Bearer <token>). null wenn nicht eingeloggt. */
   token: string | null
 }
 

@@ -53,7 +53,9 @@ export const FakeStoreAPI = {
       ? `/products/category/${encodeURIComponent(opts.category)}`
       : '/products'
 
-    return apiFetch<FakeStoreProduct[]>(`${path}?${params}`)
+    // Trailing '?' vermeiden wenn keine Query-Parameter gesetzt sind
+    const query = params.toString()
+    return apiFetch<FakeStoreProduct[]>(query ? `${path}?${query}` : path)
   },
 
   /** Einzelnes Produkt nach ID */
