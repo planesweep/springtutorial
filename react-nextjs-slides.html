@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React.js & Next.js — Developer Training Intro</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+  <style>
+    :root {
+      --react:   #61dafb;
+      --next:    #ffffff;
+      --aws:     #ff9900;
+      --green:   #4ade80;
+      --card:    rgba(255,255,255,0.06);
+      --border:  rgba(97,218,251,0.25);
+    }
+
+    .reveal { font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+    .reveal h1 { font-size: 2.2em; color: var(--react); }
+    .reveal h2 { font-size: 1.55em; color: var(--react); }
+    .reveal h3 { font-size: 1.1em; color: #ccc; font-weight: 400; }
+
+    .reveal .slides section { text-align: left; }
+    .reveal .slides section.center-slide { text-align: center; }
+
+    /* Code */
+    .reveal pre {
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+      border-radius: 8px;
+      font-size: 0.64em;
+      margin: 0.5em 0;
+    }
+    .reveal code { border-radius: 4px; }
+    .reveal p code, .reveal li code {
+      background: rgba(97,218,251,0.12);
+      color: var(--react);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.88em;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      font-size: 0.52em;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 20px;
+      vertical-align: middle;
+      margin-left: 6px;
+      letter-spacing: 0.05em;
+    }
+    .badge.react  { background: var(--react);  color: #000; }
+    .badge.next   { background: #333;          color: #fff; border: 1px solid #555; }
+    .badge.aws    { background: var(--aws);    color: #000; }
+    .badge.ts     { background: #3178c6;       color: #fff; }
+    .badge.new    { background: var(--green);  color: #000; }
+
+    /* Grid */
+    .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; }
+    .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85em 1em;
+    }
+    .card h4 { color: var(--react); margin: 0 0 0.4em; font-size: 0.88em; }
+    .card p, .card li { font-size: 0.7em; margin: 0.2em 0; color: #bbb; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      font-size: 0.72em;
+      margin: 0.4em 0;
+      flex-wrap: wrap;
+    }
+    .flow .box {
+      background: rgba(97,218,251,0.12);
+      border: 1px solid var(--react);
+      border-radius: 5px;
+      padding: 4px 10px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .flow .box.aws   { border-color: var(--aws);    background: rgba(255,153,0,0.12); }
+    .flow .box.next  { border-color: #888;           background: rgba(255,255,255,0.08); }
+    .flow .box.green { border-color: var(--green);   background: rgba(74,222,128,0.12); }
+    .flow .arrow { color: #555; font-size: 1.2em; }
+
+    /* Highlight */
+    .hl {
+      background: rgba(97,218,251,0.1);
+      border-left: 4px solid var(--react);
+      padding: 0.55em 0.9em;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.76em;
+      color: #ddd;
+      margin: 0.5em 0;
+    }
+    .hl.aws    { border-left-color: var(--aws);   background: rgba(255,153,0,0.07); }
+    .hl.green  { border-left-color: var(--green); background: rgba(74,222,128,0.07); }
+    .hl.warn   { border-left-color: #f59e0b;      background: rgba(245,158,11,0.07); }
+    .hl.danger { border-left-color: #ef4444;      background: rgba(239,68,68,0.07); }
+
+    /* Number circle */
+    .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--react);
+      color: #000;
+      font-weight: bold;
+      font-size: 0.72em;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .step-row {
+      display: flex; align-items: flex-start;
+      margin: 0.3em 0;
+      font-size: 0.76em; color: #ddd;
+    }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 0.22em 0; font-size: 0.76em; color: #ccc; }
+    .checklist li::before { content: "✓ "; color: var(--react); font-weight: bold; }
+    .checklist li.no::before { content: "✗ "; color: #ef4444; }
+    .checklist li.warn::before { content: "⚠ "; color: #f59e0b; }
+
+    /* Section divider */
+    .section-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Title */
+    .title-slide h1 { font-size: 2.4em; line-height: 1.1; }
+    .title-slide .subtitle { color: #888; font-size: 0.9em; margin-top: 0.6em; }
+    .title-slide .meta { margin-top: 2em; font-size: 0.62em; color: #555; }
+
+    /* Compare table */
+    table { font-size: 0.68em; width: 100%; }
+    th { color: var(--react); border-bottom: 1px solid rgba(97,218,251,0.3); text-align: left; padding: 0.3em 0.4em; }
+    td { color: #ccc; padding: 0.28em 0.4em; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+    td.yes  { color: var(--green); font-weight: bold; }
+    td.no   { color: #ef4444; }
+    td.part { color: #f59e0b; }
+
+    /* Component diagram */
+    .comp-tree {
+      font-family: monospace;
+      font-size: 0.72em;
+      color: #bbb;
+      line-height: 1.6;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.8em 1.2em;
+    }
+    .comp-tree .react-tag { color: var(--react); }
+    .comp-tree .state-tag { color: #a78bfa; }
+    .comp-tree .server-tag { color: var(--green); }
+    .comp-tree .client-tag { color: #fb923c; }
+
+    /* Rendering strategy cards */
+    .strat-card {
+      background: var(--card);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.7em 0.9em;
+      font-size: 0.68em;
+    }
+    .strat-card .strat-name { font-weight: bold; font-size: 1.1em; margin-bottom: 0.3em; }
+    .strat-card .strat-desc { color: #999; margin-bottom: 0.3em; }
+    .strat-card .strat-use  { color: #ccc; }
+
+    .reveal .progress { color: var(--react); }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════ TITLE ═══ -->
+<section class="center-slide">
+  <div class="title-slide">
+    <h1>React.js &amp; Next.js</h1>
+    <p class="subtitle">Developer Training — Junior / Mid-Level</p>
+    <div class="flow" style="justify-content:center; margin-top:1.5em;">
+      <div class="box">React Basics</div>
+      <span class="arrow">→</span>
+      <div class="box">Hooks</div>
+      <span class="arrow">→</span>
+      <div class="box next">Next.js App Router</div>
+      <span class="arrow">→</span>
+      <div class="box aws">AWS Deploy</div>
+    </div>
+    <p class="meta">
+      Begleitet das REACT_NEXTJS_TUTORIAL.md im Repository<br>
+      Projekt: <code style="color:var(--react)">lean-commerce</code> — Next.js 14 · GraphQL Yoga · Zustand · Tailwind
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ AGENDA ═══ -->
+<section>
+  <h2>Agenda — 2 Tage</h2>
+  <div class="cols2">
+    <div>
+      <div class="card">
+        <h4>⚛️ Tag 1 — React.js Fundamentals</h4>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">1. Anforderungen &amp; Setup</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">2. Was ist React? Konzepte</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">3. Components, JSX &amp; Props</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">4. State &amp; Events</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">5. React Hooks im Detail</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">6. TypeScript &amp; Tailwind CSS</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">7. State Management (Zustand)</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h4>▲ Tag 2 — Next.js &amp; AWS</h4>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">8. Was ist Next.js?</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">9. App Router &amp; Routing</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">10. Server vs. Client Components</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">11. Rendering: SSR / SSG / ISR</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">12. Data Fetching &amp; Server Actions</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">13. GraphQL BFF</li>
+          <li style="font-size:0.72em;color:#bbb;padding:0.18em 0;">14. AWS Deployment</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="hl" style="margin-top:0.8em;">
+    Jedes Kapitel: <strong>Konzept verstehen → Code lesen → selbst nachbauen → erweitern</strong>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: ANFORDERUNGEN ═══ -->
+<section class="center-slide" data-background="rgba(97,218,251,0.05)">
+  <div class="section-title">
+    <span style="font-size:3em;">🛠</span>
+    <h2 style="font-size:2em; margin-top:0.3em;">Anforderungen</h2>
+    <p style="color:#888; font-size:0.8em;">Was brauchst du, bevor du anfängst?</p>
+  </div>
+</section>
+
+<section>
+  <h2>Technische Anforderungen</h2>
+  <table>
+    <tr>
+      <th>Tool</th><th>Version</th><th>Wozu?</th>
+    </tr>
+    <tr><td>Node.js</td><td><strong>20 LTS</strong></td><td>JavaScript-Laufzeitumgebung</td></tr>
+    <tr><td>pnpm</td><td>9.x</td><td>Paketmanager (schnell, Workspaces)</td></tr>
+    <tr><td>VS Code</td><td>aktuell</td><td>IDE mit TypeScript + Tailwind Extensions</td></tr>
+    <tr><td>Git</td><td>2.x</td><td>Versionskontrolle</td></tr>
+    <tr><td>Docker Desktop</td><td>24+</td><td>Lokales Dev + AWS-Vorbereitung</td></tr>
+    <tr><td>AWS CLI</td><td>v2</td><td>AWS-Steuerung via Terminal</td></tr>
+    <tr><td>AWS-Konto</td><td>Free Tier</td><td>Deployment (ECS, ECR, CloudFront)</td></tr>
+  </table>
+  <div class="hl warn" style="margin-top:0.8em;">
+    Schnell-Check: <code>node -v</code> · <code>pnpm -v</code> · <code>docker --version</code> · <code>aws --version</code>
+  </div>
+</section>
+
+<section>
+  <h2>Wissensvoraussetzungen</h2>
+  <div class="cols2">
+    <div>
+      <p style="color:var(--green);font-size:0.8em;font-weight:bold;">✅ Du bringst mit:</p>
+      <ul class="checklist">
+        <li>JavaScript ES6+ (Arrow Functions, Async/Await)</li>
+        <li>HTML &amp; CSS Grundlagen</li>
+        <li>Array-Methoden: <code>map</code>, <code>filter</code>, <code>find</code></li>
+        <li>Destructuring &amp; Spread-Operator</li>
+        <li>Module (<code>import / export</code>)</li>
+        <li>Terminal-Grundbefehle</li>
+      </ul>
+    </div>
+    <div>
+      <p style="color:#888;font-size:0.8em;font-weight:bold;">📖 Wird im Training erklärt:</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">⚛️ React Component-Modell</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">⚛️ JSX, Props, State, Hooks</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">▲ Next.js App Router</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">▲ Server vs. Client Components</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">▲ SSR / SSG / ISR</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">☁️ AWS ECS, ECR, CloudFront</li>
+        <li style="font-size:0.72em;color:#bbb;padding:0.2em 0;">🧪 Jest + React Testing Library</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Projekt starten</h2>
+  <pre><code class="language-bash"># 1. Repository klonen
+git clone https://github.com/planesweep/springtutorial.git
+cd springtutorial/lean-commerce
+
+# 2. Node-Version prüfen
+node --version        # → v20.x.x
+pnpm --version        # → 9.x.x
+
+# 3. Abhängigkeiten installieren
+pnpm install
+
+# 4. Umgebungsvariablen
+cp apps/storefront/.env.example apps/storefront/.env.local
+
+# 5. Entwicklungsserver
+pnpm dev              # → http://localhost:3000
+
+# Alternativ: Docker (empfohlen)
+docker compose up     # Hot Reload im Container</code></pre>
+  <div class="hl green" style="margin-top:0.6em;">
+    <strong>Erwartetes Ergebnis:</strong> Storefront mit Produktliste, Wetterwidget und Suche auf <code>localhost:3000</code>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: REACT ═══ -->
+<section class="center-slide" data-background="rgba(97,218,251,0.06)">
+  <div class="section-title">
+    <div style="font-size:3em;">⚛️</div>
+    <h2 style="font-size:2em; margin-top:0.3em; color:var(--react);">React.js</h2>
+    <p style="color:#888; font-size:0.8em;">Die UI-Library, die alles verändert hat</p>
+  </div>
+</section>
+
+<section>
+  <h2>Was ist React?</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.78em;color:#ccc;margin-bottom:0.6em;">React ist eine <strong style="color:var(--react)">JavaScript-Library</strong> von Meta für deklarative UI-Entwicklung.</p>
+      <div class="card">
+        <h4>Die 3 Kernprinzipien</h4>
+        <p>⚛️ <strong>Components</strong> — Wiederverwendbare UI-Bausteine</p>
+        <p>📦 <strong>Props</strong> — Daten von außen (read-only)</p>
+        <p>🔄 <strong>State</strong> — Interne, veränderliche Daten</p>
+      </div>
+    </div>
+    <div>
+      <div class="comp-tree">
+&lt;<span class="react-tag">App</span>&gt;
+  &lt;<span class="react-tag">Header</span>&gt;
+    &lt;<span class="react-tag">Logo</span> /&gt;
+    &lt;<span class="react-tag">Nav</span> /&gt;
+  &lt;/<span class="react-tag">Header</span>&gt;
+  &lt;<span class="react-tag">ProductGrid</span>&gt;
+    &lt;<span class="react-tag">ProductCard</span>
+      title="Laptop"
+      price={999} /&gt;
+    &lt;<span class="react-tag">ProductCard</span>
+      title="T-Shirt"
+      price={29} /&gt;
+  &lt;/<span class="react-tag">ProductGrid</span>&gt;
+&lt;/<span class="react-tag">App</span>&gt;
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Imperativ vs. Deklarativ</h2>
+  <div class="cols2">
+    <div>
+      <p style="font-size:0.72em;color:#ef4444;font-weight:bold;">❌ Imperativ (klassisches DOM)</p>
+      <pre><code class="language-js">// Du SAGST dem Browser WIE er es tun soll
+const list = document.getElementById('list')
+list.innerHTML = ''
+products.forEach(p => {
+  const li = document.createElement('li')
+  li.textContent = p.title
+  list.appendChild(li)
+})
+// Problem: du musst den DOM-Zustand
+// selbst verwalten</code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.72em;color:var(--green);font-weight:bold;">✅ Deklarativ (React)</p>
+      <pre><code class="language-jsx">// Du BESCHREIBST WAS du willst
+// React kümmert sich um das WIE
+function ProductList({ products }) {
+  return (
+    &lt;ul&gt;
+      {products.map(p => (
+        &lt;li key={p.id}&gt;{p.title}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  )
+}
+// products ändert sich → React
+// aktualisiert nur was sich änderte</code></pre>
+    </div>
+  </div>
+  <div class="hl" style="margin-top:0.6em;">
+    <strong>Virtual DOM:</strong> React vergleicht alten und neuen VDOM — aktualisiert nur die Unterschiede im echten DOM
+  </div>
+</section>
+
+<section>
+  <h2>JSX — JavaScript + HTML-Syntax</h2>
+  <div class="cols2">
+    <div>
+      <pre><code class="language-jsx">// JSX wird zu JavaScript kompiliert
+const el = &lt;h1 className="title"&gt;Hallo&lt;/h1&gt;
+
+// Entspricht:
+React.createElement('h1',
+  { className: 'title' },
+  'Hallo'
+)
+
+// Regeln:
+// ✅ className statt class
+// ✅ Ausdrücke in { }
+// ✅ Ein Root-Element
+// ✅ Selbstschließende Tags
+&lt;img src={url} alt="Bild" /&gt;</code></pre>
+    </div>
+    <div>
+      <pre><code class="language-jsx">function ProductCard({ title, price }) {
+  const isExpensive = price &gt; 100
+
+  return (
+    // Ein Root-Element (oder Fragment &lt;&gt;)
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+
+      {/* Bedingtes Rendering */}
+      {isExpensive &amp;&amp; &lt;span&gt;Premium&lt;/span&gt;}
+
+      &lt;p&gt;
+        {isExpensive ? '💎' : '💰'}
+        €{price.toFixed(2)}
+      &lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Props — Daten von außen</h2>
+  <pre><code class="language-tsx">// 1. Interface definieren (TypeScript)
+interface ProductCardProps {
+  id: string
+  title: string
+  price: number
+  image: string
+  category: string
+  rating: number
+}
+
+// 2. Komponente mit Props
+function ProductCard({ id, title, price, image, category, rating }: ProductCardProps) {
+  return (
+    &lt;a href={`/products/${id}`} className="group bg-white rounded-xl border p-4 hover:shadow-md"&gt;
+      &lt;img src={image} alt={title} className="h-40 object-contain" /&gt;
+      &lt;p className="text-xs text-blue-600 capitalize"&gt;{category}&lt;/p&gt;
+      &lt;h3 className="font-medium line-clamp-2"&gt;{title}&lt;/h3&gt;
+      &lt;div className="flex justify-between"&gt;
+        &lt;span className="font-bold"&gt;€{price.toFixed(2)}&lt;/span&gt;
+        &lt;span className="text-amber-500"&gt;★ {rating.toFixed(1)}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/a&gt;
+  )
+}
+
+// 3. Verwenden
+&lt;ProductCard id="1" title="Laptop" price={999.99} image="/laptop.jpg" category="electronics" rating={4.5} /&gt;</code></pre>
+  <div class="hl" style="margin-top:0.4em;">
+    👁 Echte Datei: <code>lean-commerce/apps/storefront/components/product/ProductCard.tsx</code>
+  </div>
+</section>
+
+<section>
+  <h2>State &amp; Events — useState</h2>
+  <div class="cols2">
+    <div>
+      <pre><code class="language-tsx">'use client'
+import { useState } from 'react'
+
+function Counter() {
+  // [Wert, Setter-Funktion]
+  const [count, setCount] = useState(0)
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Zähler: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt;
+        setCount(count + 1)
+      }&gt;
+        +1
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+    <div>
+      <div class="hl danger" style="margin-bottom:0.6em;">
+        <strong>Niemals State direkt mutieren!</strong><br>
+        <code>❌ count = count + 1</code><br>
+        <code>✅ setCount(count + 1)</code>
+      </div>
+      <div class="hl warn">
+        Bei Objekten/Arrays immer <strong>neues Objekt/Array</strong> erstellen:<br>
+        <code>setUser({ ...user, age: 26 })</code><br>
+        <code>setCart([...cart, newItem])</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>React Hooks — Übersicht</h2>
+  <div class="cols2">
+    <div>
+      <div class="card" style="margin-bottom:0.7em;">
+        <h4>useState — Lokaler State</h4>
+        <p><code>const [val, setVal] = useState(init)</code></p>
+      </div>
+      <div class="card" style="margin-bottom:0.7em;">
+        <h4>useEffect — Seiteneffekte</h4>
+        <p>API-Calls, DOM-Manipulation, Subscriptions — läuft nach dem Render</p>
+      </div>
+      <div class="card">
+        <h4>useContext — Globale Daten</h4>
+        <p>Daten ohne Prop Drilling durch den Component-Tree reichen</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:0.7em;">
+        <h4>useMemo — Berechnungen cachen</h4>
+        <p>Teures Ergebnis nur neu berechnen wenn Abhängigkeiten sich ändern</p>
+      </div>
+      <div class="card" style="margin-bottom:0.7em;">
+        <h4>useCallback — Funktionen cachen</h4>
+        <p>Referenz-Stabilität für Event Handler (verhindert unnötige Re-Renders)</p>
+      </div>
+      <div class="card">
+        <h4>Custom Hooks — Logik teilen</h4>
+        <p><code>useProducts()</code>, <code>useCart()</code> — eigene Hooks für wiederverwendbare Logik</p>
+      </div>
+    </div>
+  </div>
+  <div class="hl warn" style="margin-top:0.6em;">
+    <strong>Hook-Regeln:</strong> Nur auf Top-Level aufrufen · Nie in Schleifen oder Bedingungen
+  </div>
+</section>
+
+<section>
+  <h2>useEffect — Datenfetching</h2>
+  <pre><code class="language-tsx">'use client'
+import { useState, useEffect } from 'react'
+
+function ProductDetail({ id }: { id: string }) {
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false                          // verhindert Update bei Unmount
+
+    fetch(`https://fakestoreapi.com/products/${id}`)
+      .then(res =&gt; res.json())
+      .then(data =&gt; { if (!cancelled) setProduct(data) })
+      .finally(() =&gt; { if (!cancelled) setLoading(false) })
+
+    return () =&gt; { cancelled = true }             // Cleanup
+  }, [id])                                         // ← Dependency: läuft neu bei id-Änderung
+
+  if (loading) return &lt;div className="animate-pulse h-8 bg-gray-200 rounded" /&gt;
+  return &lt;h1&gt;{product?.title}&lt;/h1&gt;
+}
+
+//  useEffect(() =&gt; { ... })           → läuft bei JEDEM Render
+//  useEffect(() =&gt; { ... }, [])       → läuft nur beim ersten Render
+//  useEffect(() =&gt; { ... }, [value])  → läuft wenn value sich ändert</code></pre>
+  <div class="hl green" style="margin-top:0.4em;">
+    In Next.js Server Components: <code>await fetch(url)</code> direkt — kein useEffect nötig!
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: NEXT.JS ═══ -->
+<section class="center-slide" data-background="rgba(255,255,255,0.04)">
+  <div class="section-title">
+    <div style="font-size:3em;">▲</div>
+    <h2 style="font-size:2em; margin-top:0.3em; color:#fff;">Next.js</h2>
+    <p style="color:#888; font-size:0.8em;">Das Produktions-Framework für React</p>
+  </div>
+</section>
+
+<section>
+  <h2>React allein vs. Next.js</h2>
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>React (Vite)</th>
+      <th>Next.js 14</th>
+    </tr>
+    <tr>
+      <td>Routing</td>
+      <td class="no">Manuell (React Router)</td>
+      <td class="yes">File-basiert (automatisch)</td>
+    </tr>
+    <tr>
+      <td>Server-Side Rendering</td>
+      <td class="no">Nein</td>
+      <td class="yes">Eingebaut</td>
+    </tr>
+    <tr>
+      <td>Static Generation</td>
+      <td class="no">Nein</td>
+      <td class="yes">Eingebaut</td>
+    </tr>
+    <tr>
+      <td>API Routes (Backend)</td>
+      <td class="no">Nein</td>
+      <td class="yes">Eingebaut</td>
+    </tr>
+    <tr>
+      <td>Bild-Optimierung</td>
+      <td class="no">Manuell</td>
+      <td class="yes">next/image (automatisch)</td>
+    </tr>
+    <tr>
+      <td>SEO</td>
+      <td class="part">Schwierig</td>
+      <td class="yes">Metadata API</td>
+    </tr>
+    <tr>
+      <td>Code Splitting</td>
+      <td class="part">Manuell konfigurieren</td>
+      <td class="yes">Automatisch</td>
+    </tr>
+    <tr>
+      <td>Server Components</td>
+      <td class="no">Nein</td>
+      <td class="yes">App Router</td>
+    </tr>
+  </table>
+</section>
+
+<section>
+  <h2>App Router — Dateistruktur</h2>
+  <div class="cols2">
+    <div>
+      <div class="comp-tree">
+<span style="color:#f59e0b;">app/</span>
+├── <span class="react-tag">layout.tsx</span>        ← Root Layout
+├── <span class="react-tag">page.tsx</span>          ← Route: /
+├── globals.css
+└── <span style="color:#a78bfa;">(shop)/</span>             ← Route Group
+    ├── <span class="react-tag">layout.tsx</span>    ← Shop-Layout
+    ├── <span style="color:#f59e0b;">products/</span>
+    │   ├── <span class="react-tag">page.tsx</span>  ← /products
+    │   ├── loading.tsx   ← Skeleton
+    │   └── <span style="color:#f59e0b;">[id]/</span>
+    │       └── <span class="react-tag">page.tsx</span> ← /products/123
+    ├── <span style="color:#f59e0b;">cart/</span>
+    │   └── <span class="react-tag">page.tsx</span>  ← /cart
+    └── <span style="color:#f59e0b;">search/</span>
+        └── <span class="react-tag">page.tsx</span>  ← /search
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:0.6em;">
+        <h4>Spezielle Dateien</h4>
+        <p><code>page.tsx</code> — Die Seite für diese Route</p>
+        <p><code>layout.tsx</code> — Wrapper (Nav, Footer etc.)</p>
+        <p><code>loading.tsx</code> — Auto-Suspense Skeleton</p>
+        <p><code>error.tsx</code> — Fehlerbehandlung</p>
+        <p><code>not-found.tsx</code> — 404-Seite</p>
+        <p><code>route.ts</code> — API-Endpunkt</p>
+      </div>
+      <div class="hl green">
+        <code>(shop)</code> = Route Group — kein URL-Segment, eigenes Layout!
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Server vs. Client Components</h2>
+  <div class="cols2">
+    <div>
+      <div class="card">
+        <h4 style="color:var(--green);">🟢 Server Component (Default)</h4>
+        <p>Kein <code>'use client'</code> Direktiv nötig</p>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ Async/Await direkt</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ Direkter DB-Zugriff</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ Kein JS im Browser</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ Kleines Bundle</li>
+          <li style="font-size:0.7em;color:#ef4444;padding:0.15em 0;">✗ Keine React Hooks</li>
+          <li style="font-size:0.7em;color:#ef4444;padding:0.15em 0;">✗ Keine Browser-APIs</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h4 style="color:#fb923c;">🟠 Client Component</h4>
+        <p><code>'use client'</code> an die erste Zeile</p>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ useState, useEffect etc.</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ onClick, onChange etc.</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ localStorage, window</li>
+          <li style="font-size:0.7em;color:#aaa;padding:0.15em 0;">✓ Zustand-Store Hooks</li>
+          <li style="font-size:0.7em;color:#f59e0b;padding:0.15em 0;">⚠ JS wird an Browser gesendet</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="hl" style="margin-top:0.8em;">
+    <strong>Faustregel:</strong> Default Server Component. Erst <code>'use client'</code> wenn Interaktivität oder Browser-APIs gebraucht werden.
+  </div>
+</section>
+
+<section>
+  <h2>Rendering-Strategien</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7em;margin-top:0.3em;">
+    <div class="strat-card" style="border-color:#3b82f6;">
+      <div class="strat-name" style="color:#3b82f6;">CSR — Client Side</div>
+      <div class="strat-desc">HTML leer, JS holt Daten im Browser</div>
+      <div class="strat-use">✓ Dashboards hinter Login<br>✗ Schlechtes SEO, langsam</div>
+    </div>
+    <div class="strat-card" style="border-color:#a78bfa;">
+      <div class="strat-name" style="color:#a78bfa;">SSR — Server Side</div>
+      <div class="strat-desc">HTML bei jedem Request auf dem Server</div>
+      <div class="strat-use">✓ Personalisierte Seiten<br>✗ Jeder Request kostet CPU</div>
+    </div>
+    <div class="strat-card" style="border-color:var(--green);">
+      <div class="strat-name" style="color:var(--green);">SSG — Static Gen</div>
+      <div class="strat-desc">HTML beim Build generiert, CDN-auslieferbar</div>
+      <div class="strat-use">✓ Schnellstes Laden, günstig<br>✗ Daten sind statisch</div>
+    </div>
+    <div class="strat-card" style="border-color:var(--react);">
+      <div class="strat-name" style="color:var(--react);">ISR — Incremental SR <span class="badge react">lean-commerce</span></div>
+      <div class="strat-desc">SSG + automatische Revalidierung</div>
+      <div class="strat-use">✓ Schnell UND frisch<br>✓ Perfekt für Shops!</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>ISR in der Praxis</h2>
+  <pre><code class="language-tsx">// app/page.tsx — lean-commerce Homepage
+// Datei: lean-commerce/apps/storefront/app/page.tsx
+
+// ← Diese eine Zeile aktiviert ISR!
+export const revalidate = 60   // Seite alle 60 Sekunden regenerieren
+
+export default async function HomePage() {
+  return (
+    &lt;main className="max-w-7xl mx-auto px-4 py-8"&gt;
+      {/* Suspense: Wetter-Daten streamen separat */}
+      &lt;Suspense fallback={&lt;WeatherSkeleton /&gt;}&gt;
+        &lt;WeatherWidget /&gt;       {/* async Server Component */}
+      &lt;/Suspense&gt;
+
+      {/* Produkte streamen unabhängig vom Wetter */}
+      &lt;Suspense fallback={&lt;ProductsSkeleton /&gt;}&gt;
+        &lt;FeaturedProducts /&gt;   {/* async Server Component */}
+      &lt;/Suspense&gt;
+    &lt;/main&gt;
+  )
+}
+
+// On-Demand Revalidierung per Webhook:
+// POST /api/revalidate → revalidatePath('/') → sofort neu generiert</code></pre>
+</section>
+
+<section>
+  <h2>Data Fetching — 3 Wege</h2>
+  <div class="cols3">
+    <div class="card">
+      <h4>Server Component</h4>
+      <pre style="font-size:0.55em;margin:0.3em 0;"><code class="language-tsx">// Direktes await
+async function Products() {
+  const data = await fetch(url, {
+    next: { revalidate: 300 }
+  }).then(r => r.json())
+
+  return &lt;Grid items={data} /&gt;
+}</code></pre>
+      <p>Läuft auf dem Server, kein JS im Browser, bestes SEO</p>
+    </div>
+    <div class="card">
+      <h4>Client Component</h4>
+      <pre style="font-size:0.55em;margin:0.3em 0;"><code class="language-tsx">'use client'
+// useEffect für Client-Data
+function LivePrice({ id }) {
+  const [price, setPrice] =
+    useState(null)
+  useEffect(() =&gt; {
+    fetchPrice(id).then(setPrice)
+  }, [id])
+  return &lt;span&gt;{price}&lt;/span&gt;
+}</code></pre>
+      <p>Für personalisierte oder häufig wechselnde Daten</p>
+    </div>
+    <div class="card">
+      <h4>Server Action</h4>
+      <pre style="font-size:0.55em;margin:0.3em 0;"><code class="language-tsx">'use server'
+// Formular-Handler auf Server
+export async function addToCart(
+  formData: FormData
+) {
+  const id =
+    formData.get('productId')
+  await db.cart.upsert({ id })
+  revalidatePath('/cart')
+}</code></pre>
+      <p>Mutation ohne API-Route — direkt auf Server</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: ARCHITEKTUR ═══ -->
+<section class="center-slide" data-background="rgba(97,218,251,0.04)">
+  <div class="section-title">
+    <div style="font-size:3em;">🏗</div>
+    <h2 style="font-size:2em; margin-top:0.3em;">lean-commerce Architektur</h2>
+    <p style="color:#888; font-size:0.8em;">Alles zusammen — wie die Schichten interagieren</p>
+  </div>
+</section>
+
+<section>
+  <h2>GraphQL BFF Architektur</h2>
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:0.3em;">
+    <div style="display:flex;align-items:center;gap:0.4em;">
+      <div class="box" style="width:180px;text-align:center;">Browser</div>
+      <span style="color:#555;font-size:0.8em;">Server Components rendern auf Server</span>
+    </div>
+    <div style="margin-left:80px;color:#555;">↓</div>
+    <div style="display:flex;align-items:center;gap:0.4em;">
+      <div class="box next" style="width:180px;text-align:center;">Next.js 14<br><small>App Router</small></div>
+      <span style="color:#555;font-size:0.8em;">SSR/ISR · Server Components · Client Components</span>
+    </div>
+    <div style="margin-left:80px;color:#555;">↓ GraphQL</div>
+    <div style="display:flex;align-items:center;gap:0.4em;">
+      <div class="box" style="width:180px;text-align:center;">GraphQL Yoga<br><small>/api/graphql</small></div>
+      <span style="color:#555;font-size:0.8em;">BFF: kombiniert externe REST-APIs · Schema SDL-first</span>
+    </div>
+    <div style="margin-left:80px;color:#555;">↓ REST</div>
+    <div style="display:flex;align-items:center;gap:0.4em;flex-wrap:wrap;">
+      <div class="box green">FakeStore API</div>
+      <div class="box green">DummyJSON API</div>
+      <div class="box green">Open-Meteo API</div>
+      <span style="color:#555;font-size:0.8em;">Alle kostenlos · Kein API-Key</span>
+    </div>
+  </div>
+  <div class="hl" style="margin-top:0.7em;">
+    Das BFF-Pattern hält das Frontend von Backend-Details isoliert. Externes API-Wechsel → nur Resolver ändern.
+  </div>
+</section>
+
+<section>
+  <h2>State Management — Zustand</h2>
+  <pre><code class="language-tsx">// lib/store/cart.ts — lean-commerce Warenkorb
+// Datei: lean-commerce/apps/storefront/lib/store/cart.ts
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
+
+export const useCartStore = create&lt;CartStore&gt;()(
+  persist(                  // ← State in localStorage
+    immer((set, get) =&gt; ({  // ← Immer: mutierende Syntax erlaubt
+      lines: [],
+
+      addLine: (item) =&gt; set(state =&gt; {
+        const existing = state.lines.find(l =&gt; l.productId === item.productId)
+        if (existing) {
+          existing.quantity += 1   // sieht mutierend aus, ist aber unveränderlich!
+        } else {
+          state.lines.push({ ...item, quantity: 1 })
+        }
+      }),
+    })),
+    { name: 'lean-commerce-cart' }  // localStorage Key
+  )
+)
+
+// Verwendung in Client Component:
+'use client'
+const count = useCartStore(state =&gt; state.totalItems())</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: AWS ═══ -->
+<section class="center-slide" data-background="rgba(255,153,0,0.06)">
+  <div class="section-title">
+    <div style="font-size:3em;">☁️</div>
+    <h2 style="font-size:2em; margin-top:0.3em; color:var(--aws);">AWS Deployment</h2>
+    <p style="color:#888; font-size:0.8em;">Next.js produktiv auf AWS</p>
+  </div>
+</section>
+
+<section>
+  <h2>AWS Architektur — Überblick</h2>
+  <div class="flow" style="flex-direction:column;align-items:flex-start;gap:0.4em;font-size:0.85em;">
+    <div style="display:flex;align-items:center;gap:0.5em;width:100%;">
+      <div class="box" style="width:200px;text-align:center;">Browser</div>
+    </div>
+    <div style="margin-left:88px;color:#555;">↓ HTTPS</div>
+    <div style="display:flex;align-items:center;gap:0.5em;">
+      <div class="box aws" style="width:200px;text-align:center;">CloudFront (CDN)<br><small>WAF · Caching</small></div>
+      <span style="color:#888;font-size:0.8em;">← Statische Assets · SSR-Antworten cachen</span>
+    </div>
+    <div style="margin-left:88px;color:#555;">↓</div>
+    <div style="display:flex;align-items:center;gap:0.5em;">
+      <div class="box aws" style="width:200px;text-align:center;">ALB<br><small>Load Balancer</small></div>
+      <span style="color:#888;font-size:0.8em;">← HTTPS-Terminierung · Health Checks</span>
+    </div>
+    <div style="margin-left:88px;color:#555;">↓</div>
+    <div style="display:flex;align-items:center;gap:0.5em;">
+      <div class="box aws" style="width:200px;text-align:center;">ECS Fargate<br><small>Docker Container</small></div>
+      <span style="color:#888;font-size:0.8em;">← Auto Scaling · Kein Server-Management</span>
+    </div>
+    <div style="margin-left:88px;color:#555;">↓</div>
+    <div style="display:flex;align-items:center;gap:0.4em;flex-wrap:wrap;">
+      <div class="box aws">ECR Registry</div>
+      <div class="box aws">Secrets Manager</div>
+      <div class="box aws">CloudWatch</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Option A: AWS Amplify (einfacher Einstieg)</h2>
+  <pre><code class="language-bash"># 1. Amplify CLI installieren
+npm install -g @aws-amplify/cli
+
+# 2. Konfigurieren (einmalig)
+amplify configure   # AWS Credentials, Region
+
+# 3. In deinem Next.js-Projekt
+cd lean-commerce/apps/storefront
+amplify init        # Projekt-Name, Environment
+amplify add hosting # CloudFront + S3
+
+# 4. Deployen
+amplify publish     # Build + Deploy in einem Schritt</code></pre>
+
+  <div class="cols2" style="margin-top:0.6em;">
+    <div class="hl green">
+      <strong>GitHub-Integration möglich:</strong> Amplify Console → GitHub-Repo verbinden → jeder Push auf <code>main</code> deployt automatisch
+    </div>
+    <div class="hl aws">
+      <strong>Perfekt für:</strong> Einstieg, Staging-Environments, prototyping. Für Produktion bei hohem Traffic: ECS Fargate
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Option B: Docker → ECR → ECS Fargate</h2>
+  <div class="cols2">
+    <div>
+      <pre><code class="language-bash"># 1. Image bauen
+docker build -t lean-commerce .
+
+# 2. ECR-Repo erstellen
+aws ecr create-repository \
+  --repository-name lean-commerce
+
+# 3. Login + Push
+aws ecr get-login-password | \
+  docker login --username AWS \
+  --password-stdin $ECR_URI
+
+docker push $ECR_URI/lean-commerce:latest
+
+# 4. ECS Task + Service via Console
+# oder Terraform / CDK</code></pre>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:0.6em;">
+        <h4>Multi-Stage Dockerfile</h4>
+        <p>① <code>deps</code> — pnpm install</p>
+        <p>② <code>builder</code> — pnpm build</p>
+        <p>③ <code>runner</code> — minimales Image</p>
+        <p style="color:var(--green);">→ Non-root User für Sicherheit</p>
+      </div>
+      <div class="hl aws">
+        Health Check: <code>GET /api/health</code> — ECS prüft alle 30s
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>CI/CD Pipeline — GitHub Actions</h2>
+  <pre><code class="language-yaml"># .github/workflows/deploy.yml
+name: Deploy to AWS ECS
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Build & Push to ECR
+        run: |
+          docker build -t $ECR_URI:${{ github.sha }} .
+          docker push $ECR_URI:${{ github.sha }}
+
+      - name: Deploy ECS Service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          service: storefront
+          cluster: lean-commerce</code></pre>
+</section>
+
+<section>
+  <h2>Secrets &amp; Umgebungsvariablen</h2>
+  <div class="cols2">
+    <div>
+      <pre><code class="language-bash"># Secret erstellen
+aws secretsmanager create-secret \
+  --name "lean-commerce/env" \
+  --secret-string '{
+    "REVALIDATE_SECRET": "xxx",
+    "NEXT_PUBLIC_API_URL": "https://..."
+  }'</code></pre>
+      <pre><code class="language-json">// In ECS Task Definition referenzieren:
+"secrets": [{
+  "name": "REVALIDATE_SECRET",
+  "valueFrom": "arn:aws:secretsmanager:..."
+}]
+// ECS holt den Wert zur Laufzeit!</code></pre>
+    </div>
+    <div>
+      <div class="hl danger">
+        <strong>Niemals Secrets in:</strong><br>
+        ✗ Dockerfile<br>
+        ✗ Task Definition (Klartext)<br>
+        ✗ Git-Repository<br>
+        ✗ Docker-Image Layer
+      </div>
+      <div class="hl green" style="margin-top:0.5em;">
+        <strong>Immer nutzen:</strong><br>
+        ✓ AWS Secrets Manager<br>
+        ✓ ECS Task Definition (valueFrom)<br>
+        ✓ GitHub Actions Secrets
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>CloudWatch Monitoring</h2>
+  <pre><code class="language-bash"># CPU-Alarm: CPU > 80% für 5 Minuten
+aws cloudwatch put-metric-alarm \
+  --alarm-name "lean-commerce-high-cpu" \
+  --metric-name CPUUtilization \
+  --namespace AWS/ECS \
+  --dimensions Name=ClusterName,Value=lean-commerce \
+  --period 300 --evaluation-periods 2 \
+  --threshold 80 \
+  --comparison-operator GreaterThanThreshold \
+  --alarm-actions "arn:aws:sns:eu-central-1:ACCOUNT:alerts"
+
+# 5xx Fehler-Alarm (ALB)
+aws cloudwatch put-metric-alarm \
+  --alarm-name "lean-commerce-5xx" \
+  --metric-name HTTPCode_Target_5XX_Count \
+  --namespace AWS/ApplicationELB \
+  --threshold 10 --period 60 --evaluation-periods 3</code></pre>
+  <div class="hl aws" style="margin-top:0.4em;">
+    CloudWatch Dashboard: CPU · Memory · Request Count · Latency P99 · Error Rate
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ BEST PRACTICES ═══ -->
+<section class="center-slide" data-background="rgba(74,222,128,0.04)">
+  <div class="section-title">
+    <div style="font-size:3em;">✅</div>
+    <h2 style="font-size:2em; margin-top:0.3em; color:var(--green);">Best Practices</h2>
+    <p style="color:#888; font-size:0.8em;">Was du im Produktion unbedingt beachten musst</p>
+  </div>
+</section>
+
+<section>
+  <h2>Code-Qualität &amp; Performance</h2>
+  <div class="cols2">
+    <div>
+      <p style="color:var(--green);font-size:0.78em;font-weight:bold;">Code-Qualität</p>
+      <ul class="checklist">
+        <li>TypeScript-Fehler null halten, kein <code>any</code></li>
+        <li>Props mit Interfaces typisieren</li>
+        <li><code>key</code> bei Listen: stabile IDs (nicht Index)</li>
+        <li>Default Server Component, <code>'use client'</code> nur wenn nötig</li>
+        <li>Fehlerbehandlung in async Server Components</li>
+        <li><code>next/image</code> für alle Bilder</li>
+        <li><code>next/link</code> für alle Links</li>
+      </ul>
+    </div>
+    <div>
+      <p style="color:var(--react);font-size:0.78em;font-weight:bold;">Performance</p>
+      <ul class="checklist">
+        <li>Parallele Fetches mit <code>Promise.all()</code></li>
+        <li>Suspense-Grenzen für paralleles Streaming</li>
+        <li>ISR statt SSR wenn möglich</li>
+        <li>Cache-Tags für gezielte Invalidierung</li>
+        <li><code>useMemo</code>/<code>useCallback</code> nur wenn gemessen nötig</li>
+        <li>Bundle-Analyse: <code>@next/bundle-analyzer</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Sicherheit &amp; AWS-Checkliste</h2>
+  <div class="cols2">
+    <div>
+      <p style="color:#ef4444;font-size:0.78em;font-weight:bold;">🔒 Sicherheit</p>
+      <ul class="checklist">
+        <li>Secrets nur via Secrets Manager</li>
+        <li>REVALIDATE_SECRET für Webhooks</li>
+        <li>Input-Validierung in Server Actions (zod)</li>
+        <li>Security Headers in <code>next.config.mjs</code></li>
+        <li>HTTPS-only (ALB + CloudFront)</li>
+        <li>WAF-Regeln für ALB/CloudFront</li>
+        <li>ECR-Images: Vulnerability Scan</li>
+      </ul>
+    </div>
+    <div>
+      <p style="color:var(--aws);font-size:0.78em;font-weight:bold;">☁️ AWS Deployment</p>
+      <ul class="checklist">
+        <li>Dockerfile multi-stage (builder + runner)</li>
+        <li>Non-root User im Container</li>
+        <li>Health Check <code>/api/health</code></li>
+        <li>CloudWatch Log Group + Alarme</li>
+        <li>Auto Scaling Policy</li>
+        <li>ALB mit HTTPS + ACM-Zertifikat</li>
+        <li>CloudFront vor ALB</li>
+        <li>GitHub Actions CI/CD Pipeline</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ FINAL ═══ -->
+<section class="center-slide">
+  <div class="section-title">
+    <div style="display:flex;justify-content:center;align-items:center;gap:0.4em;font-size:2em;margin-bottom:0.5em;">
+      <span>⚛️</span>
+      <span style="color:#555;font-size:0.8em;">+</span>
+      <span>▲</span>
+      <span style="color:#555;font-size:0.8em;">+</span>
+      <span style="color:var(--aws);">☁️</span>
+    </div>
+    <h2 style="color:#fff;font-size:1.8em;">Du bist bereit!</h2>
+    <p style="color:#888;font-size:0.82em;margin-top:0.6em;">Jetzt geht es an die praktische Arbeit</p>
+    <div style="display:flex;justify-content:center;gap:1em;margin-top:1.5em;flex-wrap:wrap;">
+      <div class="box" style="font-size:0.7em;">📖 REACT_NEXTJS_TUTORIAL.md lesen</div>
+      <div class="box next" style="font-size:0.7em;">🔍 lean-commerce Codebase erkunden</div>
+      <div class="box green" style="font-size:0.7em;">🏗 Komponente nachbauen</div>
+      <div class="box aws" style="font-size:0.7em;">🚀 Auf AWS deployen</div>
+    </div>
+    <p style="color:#555;font-size:0.65em;margin-top:2em;">
+      Repository: <code style="color:var(--react)">github.com/planesweep/springtutorial</code>
+    </p>
+  </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    progress: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    center: false,
+    width: 1280,
+    height: 720,
+    margin: 0.04,
+    plugins: [ RevealHighlight, RevealNotes ],
+  })
+</script>
+</body>
+</html>
